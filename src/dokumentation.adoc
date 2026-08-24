@@ -1,0 +1,10 @@
+=== Dokumentation
+
+Ich habe mich entschieden ein Spacedefender game zu erstellen. Also wo ein Raumschiff fliegt und entegenkommende Schiffe beschiesst.
+
+Die idee ist das in level 1 die astroide langsam ankommen. Danach in level 2 sie schneller werden mit gegner (Aliens) und im level 3 mit einem grossen gegner am ende
+
+Man hat 3 leben
+
+
+Ich werde zuerst den setup von DemoApp kopieren und mit dem Anfangen.
