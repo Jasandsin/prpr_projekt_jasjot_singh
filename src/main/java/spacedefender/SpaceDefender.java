@@ -17,6 +17,8 @@ public class SpaceDefender extends PApplet {
     int score = 0;
     int lives = 3;
 
+    boolean gameOver = false;
+    boolean gameStartScreen = true;
     boolean moveLeft = false;
     boolean moveRight = false;
 
@@ -51,6 +53,38 @@ public class SpaceDefender extends PApplet {
     @Override
     public void draw() {
         background(20);
+
+        // Zeigt den Start Screen mit Start, Tutorial und Highscore
+        if (gameStartScreen) {
+            fill(255);
+            textAlign(CENTER);
+            textSize(50);
+            text("Welcome to SpaceDefender ", width / 2, 250);
+            textSize(25);
+            text("Start Game Press: S ", width / 2, 310);
+            textSize(25);
+            text("Start Tutorial Press: T ", width / 2, 370);
+            textSize(25);
+            text("See Highscore Press: H ", width / 2, 430);
+
+            return;
+        }
+
+        // Zeigt den Game-Over-Screen und stoppt den restlichen Spielablauf
+        if (gameOver) {
+            fill(255);
+            textAlign(CENTER);
+            textSize(50);
+            text("GAME OVER", width / 2, 250);
+
+            textSize(25);
+            text("Score: " + score, width / 2, 310);
+
+            textSize(20);
+            text("Press R to Replay", width / 2, 370);
+
+            return;
+        }
 
         if (moveLeft) {
             playerX = playerX - playerSpeed;
@@ -99,6 +133,10 @@ public class SpaceDefender extends PApplet {
             if (enemy.hitsPlayer(playerX, playerY)) {
                 enemies.remove(i);
                 lives = lives - 1;
+                // Wenn keine Leben mehr vorhanden sind, ist das Spiel beendet
+                if (lives <= 0) {
+                    gameOver = true;
+                }
                 // continue = Dieser Durchlauf ist fertig. Geh zum nächsten Gegner.
                 continue;
             }
@@ -142,6 +180,7 @@ public class SpaceDefender extends PApplet {
             );
 
         // Zeigt den aktuellen Punktestand oben links an
+        textAlign(LEFT);
         fill(255);
         textSize(20);
         text("Score: " + score, 20, 30);
@@ -150,6 +189,18 @@ public class SpaceDefender extends PApplet {
 
     @Override
     public void keyPressed() {
+
+        // Startet das Spiel
+        if (gameStartScreen && (key == 's' || key == 'S')) {
+            gameStartScreen = false;
+            return;
+        }
+
+        // Startet das Spiel nach Game Over neu
+        if (gameOver && (key == 'r' || key == 'R')) {
+            restartGame();
+            return;
+        }
 
         //Taste gedrückt Raumschiff bewegt sich nach links
         if (key == 'a' || key == 'A') {
@@ -186,6 +237,25 @@ public class SpaceDefender extends PApplet {
             shooting = false;
         }
 
+    }
+
+    // Setzt alle Spielwerte zurück und startet ein neues Spiel
+    public void restartGame() {
+        score = 0;
+        lives = 3;
+        gameOver = false;
+
+        playerX = width / 2;
+        playerY = height - 70;
+
+        bullets.clear();
+        enemies.clear();
+
+        shooting = false;
+        moveLeft = false;
+        moveRight = false;
+
+        lastEnemySpawn = millis();
     }
 
 }
