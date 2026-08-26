@@ -15,11 +15,15 @@ public class SpaceDefender extends PApplet {
     float playerY;
     float playerSpeed = 5;
     int score = 0;
+    int highscore = 0;
     int lives = 3;
 
+    //Screens
     boolean gameOver = false;
     boolean gameStartScreen = true;
     boolean tutorialScreen = false;
+    boolean highscoreScreen = false;
+
     boolean moveLeft = false;
     boolean moveRight = false;
 
@@ -92,6 +96,19 @@ public class SpaceDefender extends PApplet {
             return;
         }
 
+        //Highscore Screen
+        if (highscoreScreen) {
+            fill(255);
+            textAlign(CENTER);
+            textSize(50);
+            text("HighScore ", width / 2, 150);
+            textSize(18);
+            text("Highest Score: " + highscore, width / 2, 210);
+            textSize(15);
+            text("Press B to go back to Start Screen ", width / 2, 500);
+            return;
+        }
+
         // Zeigt den Game-Over-Screen und stoppt den restlichen Spielablauf
         if (gameOver) {
             fill(255);
@@ -102,8 +119,16 @@ public class SpaceDefender extends PApplet {
             textSize(25);
             text("Score: " + score, width / 2, 310);
 
+            if(score > highscore){
+                highscore = score;
+            }
+
+            textSize(25);
+            text("highscore: " + highscore, width / 2, 350);
+
             textSize(20);
-            text("Press R to Replay", width / 2, 370);
+            text("Press R to Replay", width / 2, 400);
+
 
             return;
         }
@@ -225,12 +250,22 @@ public class SpaceDefender extends PApplet {
             return;
         }
 
-        // Back Key
-        if (tutorialScreen  && (key == 'b' || key == 'B')) {
-            tutorialScreen = false;
-            gameStartScreen = true;
+        // Startet Highscore
+        if (gameStartScreen && (key == 'h' || key == 'H')) {
+            highscoreScreen = true;
+            gameStartScreen = false;
             return;
         }
+
+        // Back Key
+        if ((tutorialScreen || highscoreScreen || gameStartScreen == false) && gameOver == false && (key == 'b' || key == 'B')) {
+            highscoreScreen = false;
+            tutorialScreen = false;
+            gameStartScreen = true;
+            restartGame();
+            return;
+        }
+
 
         if (gameOver && (key == 'r' || key == 'R')) {
             restartGame();
