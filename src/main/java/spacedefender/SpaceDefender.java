@@ -19,6 +19,7 @@ public class SpaceDefender extends PApplet {
 
     boolean gameOver = false;
     boolean gameStartScreen = true;
+    boolean tutorialScreen = false;
     boolean moveLeft = false;
     boolean moveRight = false;
 
@@ -59,7 +60,7 @@ public class SpaceDefender extends PApplet {
             fill(255);
             textAlign(CENTER);
             textSize(50);
-            text("Welcome to SpaceDefender ", width / 2, 250);
+            text("Welcome to SpaceDefender ", width / 2, 150);
             textSize(25);
             text("Start Game Press: S ", width / 2, 310);
             textSize(25);
@@ -67,6 +68,27 @@ public class SpaceDefender extends PApplet {
             textSize(25);
             text("See Highscore Press: H ", width / 2, 430);
 
+            return;
+        }
+
+        //Tutorial Screen mit Controller logik und Spiel Anweisungen
+        if (tutorialScreen) {
+            fill(255);
+            textAlign(CENTER);
+            textSize(50);
+            text("Tutorial ", width / 2, 150);
+            textSize(18);
+            text("A = Move Left ", width / 2, 210);
+            textSize(18);
+            text("D = Move Right ", width / 2, 240);
+            textSize(18);
+            text("Space = Shoot ", width / 2, 270);
+            textSize(18);
+            text("You are a Spacedefender.\n " +
+                "Shoot the astroids and enemies.\n  " +
+                "You have 3 lives if you loose them your space ship gets destroyed. ", width / 2, 330);
+            textSize(15);
+            text("Press B to go back to Start Screen ", width / 2, 500);
             return;
         }
 
@@ -196,7 +218,20 @@ public class SpaceDefender extends PApplet {
             return;
         }
 
-        // Startet das Spiel nach Game Over neu
+        // Startet Tutorial
+        if (gameStartScreen && (key == 't' || key == 'T')) {
+            tutorialScreen = true;
+            gameStartScreen = false;
+            return;
+        }
+
+        // Back Key
+        if (tutorialScreen  && (key == 'b' || key == 'B')) {
+            tutorialScreen = false;
+            gameStartScreen = true;
+            return;
+        }
+
         if (gameOver && (key == 'r' || key == 'R')) {
             restartGame();
             return;
