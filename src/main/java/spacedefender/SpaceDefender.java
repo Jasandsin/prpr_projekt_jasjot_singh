@@ -10,10 +10,8 @@ public class SpaceDefender extends PApplet {
         PApplet.main(SpaceDefender.class);
     }
 
-    // X und Y Position des Raumschiffes in diesen Variabeln speichern
-    float playerX;
-    float playerY;
-    float playerSpeed = 5;
+    Spaceship spaceship;
+
     int score = 0;
     int highscore = 0;
     int lives = 3;
@@ -23,9 +21,6 @@ public class SpaceDefender extends PApplet {
     boolean gameStartScreen = true;
     boolean tutorialScreen = false;
     boolean highscoreScreen = false;
-
-    boolean moveLeft = false;
-    boolean moveRight = false;
 
     boolean shooting = false;
     int lastShotTime = 0;
@@ -41,6 +36,7 @@ public class SpaceDefender extends PApplet {
     // Liste mit allen Gegnern
     ArrayList<Enemy> enemies = new ArrayList<>();
 
+
     @Override
     public void settings() {
         size(800, 600);
@@ -48,11 +44,9 @@ public class SpaceDefender extends PApplet {
 
     @Override
     public void setup() {
-        playerX = width / 2;
-        playerY = height - 70;
-
+        spaceship = new Spaceship(this, width / 2, height - 70);
         enemies.add(new Enemy(400, 50));
-
+        imageMode(CENTER);
     }
 
     @Override
@@ -133,28 +127,12 @@ public class SpaceDefender extends PApplet {
             return;
         }
 
-        if (moveLeft) {
-            playerX = playerX - playerSpeed;
-        }
 
-        if (moveRight) {
-            playerX = playerX + playerSpeed;
-        }
-
-        // max bis 20px links
-        if (playerX < 20) {
-            playerX = 20;
-        }
-
-        // Maximal bis 780px rechts
-        if (playerX > width - 20) {
-            playerX = width - 20;
-        }
 
         // shooting 200ms abstand. 1000 ms / 200 ms = 5 Schüsse pro Sekunde
         // Solange die Leertaste gedrückt ist, wird nach jedem Cooldown eine neue Kugel erstellt
         if (shooting && millis() - lastShotTime >= shootCooldown) {
-            bullets.add(new Bullet(playerX, playerY - 25));
+            bullets.add(new Bullet(spaceship.x, spaceship.y - 50));
             lastShotTime = millis();
         }
 
@@ -177,7 +155,7 @@ public class SpaceDefender extends PApplet {
             enemy.display(this);
 
             // Gegner trifft den Spieler
-            if (enemy.hitsPlayer(playerX, playerY)) {
+            if (enemy.hitsPlayer(spaceship.x, spaceship.y)) {
                 enemies.remove(i);
                 lives = lives - 1;
                 // Wenn keine Leben mehr vorhanden sind, ist das Spiel beendet
@@ -219,12 +197,8 @@ public class SpaceDefender extends PApplet {
 
 
         //Raumschiff
-            fill(0, 0, 255);
-            triangle(
-                playerX, playerY - 25,
-                playerX - 20, playerY + 20,
-                playerX + 20, playerY + 20
-            );
+        spaceship.move();
+        spaceship.display();
 
         // Zeigt den aktuellen Punktestand oben links an
         textAlign(LEFT);
@@ -274,12 +248,12 @@ public class SpaceDefender extends PApplet {
 
         //Taste gedrückt Raumschiff bewegt sich nach links
         if (key == 'a' || key == 'A') {
-            moveLeft = true;
+            spaceship.moveLeft = true;
         }
 
         //Taste gedrückt bewegt sich nach rechts
         if (key == 'd' || key == 'D') {
-            moveRight = true;
+            spaceship.moveRight = true;
         }
 
         // Nach leertaste Kugel erstellen bei playerX starten bei der spitze playerY-25
@@ -295,12 +269,12 @@ public class SpaceDefender extends PApplet {
 
         //Taste losgelassen Bewegung links beendet
         if (key == 'a' || key == 'A') {
-            moveLeft = false;
+            spaceship.moveLeft = false;
         }
 
         //Taste losgelassen bewegung rechts beendet
         if (key == 'd' || key == 'D') {
-            moveRight = false;
+            spaceship.moveRight = false;
         }
 
         if (key == ' ') {
@@ -315,15 +289,15 @@ public class SpaceDefender extends PApplet {
         lives = 3;
         gameOver = false;
 
-        playerX = width / 2;
-        playerY = height - 70;
+        spaceship = new Spaceship(this, width /2, height-70);
+
 
         bullets.clear();
         enemies.clear();
 
         shooting = false;
-        moveLeft = false;
-        moveRight = false;
+        spaceship.moveLeft = false;
+        spaceship.moveRight = false;
 
         lastEnemySpawn = millis();
     }
