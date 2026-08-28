@@ -34,7 +34,7 @@ public class SpaceDefender extends PApplet {
     ArrayList<Bullet> bullets = new ArrayList<>();
 
     // Liste mit allen Gegnern
-    ArrayList<Enemy> enemies = new ArrayList<>();
+    ArrayList<Asteroid> asteroids = new ArrayList<>();
 
 
     @Override
@@ -45,7 +45,7 @@ public class SpaceDefender extends PApplet {
     @Override
     public void setup() {
         spaceship = new Spaceship(this, width / 2, height - 70);
-        enemies.add(new Enemy(400, 50));
+        asteroids.add(new Asteroid(this,400, 50));
         imageMode(CENTER);
     }
 
@@ -148,15 +148,15 @@ public class SpaceDefender extends PApplet {
         }
 
         // Bewegt und zeichnet alle Gegner
-        for (int i = enemies.size() - 1; i >= 0; i--) {
-            Enemy enemy = enemies.get(i);
+        for (int i = asteroids.size() - 1; i >= 0; i--) {
+            Asteroid asteroid = asteroids.get(i);
 
-            enemy.move();
-            enemy.display(this);
+            asteroid.move();
+            asteroid.display();
 
             // Gegner trifft den Spieler
-            if (enemy.hitsPlayer(spaceship.x, spaceship.y)) {
-                enemies.remove(i);
+            if (asteroid.hitsPlayer(spaceship.x, spaceship.y)) {
+                asteroids.remove(i);
                 lives = lives - 1;
                 // Wenn keine Leben mehr vorhanden sind, ist das Spiel beendet
                 if (lives <= 0) {
@@ -167,8 +167,8 @@ public class SpaceDefender extends PApplet {
             }
 
             // Gegner hat den Bildschirm verlassen
-            if (enemy.isOffScreen(this)) {
-                enemies.remove(i);
+            if (asteroid.isOffScreen()) {
+                asteroids.remove(i);
             }
         }
 
@@ -176,12 +176,12 @@ public class SpaceDefender extends PApplet {
         for (int i = bullets.size() - 1; i >= 0; i--) {
             Bullet bullet = bullets.get(i);
 
-            for (int j = enemies.size() - 1; j >= 0; j--) {
-                Enemy enemy = enemies.get(j);
+            for (int j = asteroids.size() - 1; j >= 0; j--) {
+                Asteroid asteroid = asteroids.get(j);
 
-                if (bullet.hits(enemy)) {
+                if (bullet.hits(asteroid)) {
                     bullets.remove(i);
-                    enemies.remove(j);
+                    asteroids.remove(j);
                     score = score + 10;
                     break;
                 }
@@ -191,7 +191,7 @@ public class SpaceDefender extends PApplet {
         // Erstellt jede Sekunde einen neuen Gegner an einer zufälligen X-Position
         if (millis() - lastEnemySpawn >= enemySpawnCooldown) {
             float enemyX = random(20, width - 20);
-            enemies.add(new Enemy(enemyX, 0));
+            asteroids.add(new Asteroid(this, enemyX, 0));
             lastEnemySpawn = millis();
         }
 
@@ -293,7 +293,7 @@ public class SpaceDefender extends PApplet {
 
 
         bullets.clear();
-        enemies.clear();
+        asteroids.clear();
 
         shooting = false;
         spaceship.moveLeft = false;

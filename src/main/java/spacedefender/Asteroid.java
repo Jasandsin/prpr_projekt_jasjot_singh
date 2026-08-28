@@ -1,17 +1,22 @@
 package spacedefender;
 
 import processing.core.PApplet;
+import processing.core.PImage;
 
-public class Enemy {
-
+public class Asteroid {
 
     float x;
     float y;
     float speed = 2;
 
-    public Enemy(float x, float y) {
+    PApplet pApplet;
+    PImage image;
+
+    public Asteroid( PApplet pApplet, float x, float y) {
+        this.pApplet = pApplet;
         this.x = x;
         this.y = y;
+        this.image = pApplet.loadImage("PNG/Meteors/meteorGrey_med1.png");
     }
 
     // Bewegt den Gegner nach unten
@@ -20,14 +25,13 @@ public class Enemy {
     }
 
     // Prüft, ob der Gegner den unteren Bildschirmrand verlassen hat
-    public boolean isOffScreen(PApplet app) {
-        return y > app.height;
+    public boolean isOffScreen() {
+        return y > pApplet.height;
     }
 
     // Zeichnet den Gegner
-    public void display(PApplet app) {
-        app.fill(255, 0, 0);
-        app.ellipse(x, y, 40, 40);
+    public void display() {
+        pApplet.image(image, x, y);
     }
 
     // Prüft, ob der Gegner das Raumschiff berührt

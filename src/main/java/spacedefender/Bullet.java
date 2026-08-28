@@ -31,9 +31,9 @@ public class Bullet  {
     }
 
     // Prüft, ob die Kugel einen Gegner getroffen hat
-    public boolean hits(Enemy enemy) {
-        float distanceX = x - enemy.x;
-        float distanceY = y - enemy.y;
+    public boolean hits(Asteroid asteroid) {
+        float distanceX = x - asteroid.x;
+        float distanceY = y - asteroid.y;
 
         //Math.abs negative zahlen positiv bullet kann r or l sein vom mittelpunkt des enemies
         return Math.abs(distanceX) < 20 && Math.abs(distanceY) < 20;
