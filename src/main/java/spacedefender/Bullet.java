@@ -1,6 +1,7 @@
 package spacedefender;
 
 import processing.core.PApplet;
+import processing.core.PImage;
 
 public class Bullet  {
 
@@ -10,9 +11,14 @@ public class Bullet  {
 
     float speed = 8;
 
-    public Bullet(float x, float y) {
+    PImage image;
+    PApplet pApplet;
+
+    public Bullet(PApplet pApplet, float x, float y) {
+        this.pApplet = pApplet;
         this.x = x;
         this.y = y;
+        this.image = pApplet.loadImage("PNG/Lasers/laserBlue01.png");
     }
 
     //Schiesst nach oben y = 0 ist oben deshalb y - speed (verkleinern)
@@ -25,9 +31,8 @@ public class Bullet  {
         return y < 0;
     }
 
-    public void display(PApplet app) {
-        app.fill(255, 255, 0);
-        app.rect(x - 2, y, 4, 12);
+    public void display() {
+        pApplet.image(image, x, y);
     }
 
     // Prüft, ob die Kugel einen Gegner getroffen hat

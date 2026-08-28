@@ -1,4 +1,4 @@
-package supermario;
+package spacedefender;
 
 import processing.core.PApplet;
 import processing.core.PImage;
@@ -20,7 +20,7 @@ public class FileLoader {
     }
 
     public static PImage getImage(PApplet pApplet, String filename) {
-        return imageCache.computeIfAbsent(filename, k ->  pApplet.loadImage(getPath("drawable/" + filename)));
+        return imageCache.computeIfAbsent(filename, k ->  pApplet.loadImage(getPath("PNG/" + filename)));
     }
 
     public static SoundFile getSoundFile(PApplet pApplet, String filename) {

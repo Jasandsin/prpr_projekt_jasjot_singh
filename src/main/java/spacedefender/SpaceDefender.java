@@ -1,8 +1,11 @@
 package spacedefender;
 
 import processing.core.PApplet;
+import processing.sound.SoundFile;
 
 import java.util.ArrayList;
+
+import static supermario.FileLoader.getSoundFile;
 
 public class SpaceDefender extends PApplet {
 
@@ -44,6 +47,9 @@ public class SpaceDefender extends PApplet {
 
     @Override
     public void setup() {
+        //just to have an example for sound
+        SoundFile sound = getSoundFile(this, "main.ogg");
+        sound.play();
         spaceship = new Spaceship(this, width / 2, height - 70);
         asteroids.add(new Asteroid(this,400, 50));
         imageMode(CENTER);
@@ -132,8 +138,10 @@ public class SpaceDefender extends PApplet {
         // shooting 200ms abstand. 1000 ms / 200 ms = 5 Schüsse pro Sekunde
         // Solange die Leertaste gedrückt ist, wird nach jedem Cooldown eine neue Kugel erstellt
         if (shooting && millis() - lastShotTime >= shootCooldown) {
-            bullets.add(new Bullet(spaceship.x, spaceship.y - 50));
+            bullets.add(new Bullet(this, spaceship.x, spaceship.y - 50));
             lastShotTime = millis();
+            SoundFile shootsound = getSoundFile(this, "enemy_shoot.ogg");
+            shootsound.play();
         }
 
         // Bewegt und zeichnet alle Kugeln.
@@ -141,7 +149,7 @@ public class SpaceDefender extends PApplet {
         for (int i = bullets.size() - 1; i >= 0; i--) {
             Bullet bullet = bullets.get(i);
             bullet.move();
-            bullet.display(this);
+            bullet.display();
             if (bullet.isOffScreen()) {
                 bullets.remove(i);
             }
