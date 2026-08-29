@@ -1,25 +1,16 @@
 package spacedefender;
 
 import processing.core.PApplet;
-import processing.core.PImage;
 
-public class Spaceship {
+public class Spaceship extends SpaceObject{
 
-    // X und Y Position des Raumschiffes in diesen Variabeln speichern
-    float x;
-    float y;
     float speed = 5;
 
     boolean moveLeft = false;
     boolean moveRight = false;
 
-    protected PApplet pApplet;
-    PImage image;
-
     public Spaceship( PApplet pApplet, float x, float y) {
-        this.pApplet = pApplet;
-        this.x = x;
-        this.y = y;
+        super(pApplet, x, y);
         this.image = pApplet.loadImage("PNG/playerShip1_blue.png");
     }
 
@@ -38,11 +29,6 @@ public class Spaceship {
         if (x > pApplet.width - 20) {
             x = pApplet.width - 20;
         }
-
-    }
-
-    public void display(){
-        pApplet.image(image, x, y);
     }
 
 }

@@ -1,11 +1,12 @@
 package spacedefender;
 
 import processing.core.PApplet;
+import processing.core.PImage;
 import processing.sound.SoundFile;
 
 import java.util.ArrayList;
 
-import static supermario.FileLoader.getSoundFile;
+import static spacedefender.FileLoader.getSoundFile;
 
 public class SpaceDefender extends PApplet {
 
@@ -14,6 +15,8 @@ public class SpaceDefender extends PApplet {
     }
 
     Spaceship spaceship;
+
+    PImage backgroundImage;
 
     int score = 0;
     int highscore = 0;
@@ -47,6 +50,7 @@ public class SpaceDefender extends PApplet {
 
     @Override
     public void setup() {
+      //  backgroundImage = loadImage("PNG/blue-preview.png");
         //just to have an example for sound
         SoundFile sound = getSoundFile(this, "main.ogg");
         sound.play();
