@@ -45,6 +45,8 @@ public class SpaceDefender extends PApplet {
     // Liste mit allen Gegnern
     ArrayList<Asteroid> asteroids = new ArrayList<>();
 
+    ArrayList<Enemy> enemies = new ArrayList<>();
+
     ArrayList<HighscoreEntry> highscoreEntries = new ArrayList<>();
 
 
@@ -62,6 +64,7 @@ public class SpaceDefender extends PApplet {
         sound.play();
         spaceship = new Spaceship(this, width / 2, height - 70);
         asteroids.add(new Asteroid(this,400, 50));
+        enemies.add(new Enemy(this, 400, 50));
         imageMode(CENTER);
     }
 
@@ -159,15 +162,16 @@ public class SpaceDefender extends PApplet {
         }
 
 
-
         // shooting 200ms abstand. 1000 ms / 200 ms = 5 Schüsse pro Sekunde
         // Solange die Leertaste gedrückt ist, wird nach jedem Cooldown eine neue Kugel erstellt
         if (shooting && millis() - lastShotTime >= shootCooldown) {
-            bullets.add(new Bullet(this, spaceship.x, spaceship.y - 50));
+            bullets.add(new Bullet(this, spaceship.x, spaceship.y - 50, -1));
             lastShotTime = millis();
             SoundFile shootsound = getSoundFile(this, "enemy_shoot.ogg");
             shootsound.play();
         }
+
+
 
         // Bewegt und zeichnet alle Kugeln.
         // Kugeln ausserhalb des Bildschirms werden aus der Liste entfernt.
@@ -180,7 +184,109 @@ public class SpaceDefender extends PApplet {
             }
         }
 
-        // Bewegt und zeichnet alle Gegner
+
+
+
+        // Prüft, ob eine Kugel einen Enemy oder Asteroid trifft
+        for (int i = bullets.size() - 1; i >= 0; i--) {
+            Bullet bullet = bullets.get(i);
+            boolean bulletHit = false;
+            if(bullet.isPlayerBullet()){
+                for (int j = enemies.size() - 1; j >= 0; j--) {
+                    Enemy enemy = enemies.get(j);
+
+                    if (bullet.hitsEnemy(enemy)) {
+                        bullets.remove(i);
+                        enemies.remove(j);
+                        score = score + 30;
+                        bulletHit = true;
+                        break;
+                    }
+                }
+
+                // Wenn bereits Enemy getroffen wurde,
+                // nächste Bullet prüfen
+                if (bulletHit) {
+                    continue;
+                }
+
+                for (int j = asteroids.size() - 1; j >= 0; j--) {
+                    Asteroid asteroid = asteroids.get(j);
+
+                    if (bullet.hitsAsteroid(asteroid)) {
+                        bullets.remove(i);
+                        asteroids.remove(j);
+                        score = score + 10;
+                        break;
+                    }
+                }
+            }
+            if (!bullet.isPlayerBullet() && bullet.hitsPlayer(spaceship)) {
+                bullets.remove(i);
+                lives = lives -1;
+                continue;
+            }
+        }
+
+
+            if(score >= 200){
+                level = 3;
+            }else if(score >= 100){
+                level = 2;
+            }else {
+                level = 1;
+            }
+
+
+        // Bewegt und zeichnet alle Enemies
+        for (int i = enemies.size() - 1; i >= 0; i--) {
+            Enemy enemy = enemies.get(i);
+            switch (level) {
+            case 3 -> {enemy.setSpeed(3);}
+            case 2 -> {enemy.setSpeed(2);}
+            default -> {enemy.setSpeed(1);}
+            }
+            enemy.move();
+            enemy.display();
+            if(enemy.canShoot()){
+                bullets.add(new Bullet(this, enemy.x, enemy.y + 50, 1));
+            }
+            // Gegner trifft den Spieler
+            if (enemy.hitsPlayer(spaceship.x, spaceship.y)){
+                enemies.remove(i);
+                lives = lives - 1;
+                // Wenn keine Leben mehr vorhanden sind, ist das Spiel beendet
+                if (lives <= 0) {
+                    boolean playerExist = false;
+                    HighscoreEntry highscore = new HighscoreEntry(name, score);
+                    for (int h = 0; h < highscoreEntries.size(); h++) {
+                        HighscoreEntry highscoreEntry = highscoreEntries.get(h);
+                        if (highscoreEntry.getPlayerName().equals(name)){
+                            playerExist = true;
+                            if(highscoreEntry.getHighscoreOfPlayer() < score){
+                                highscoreEntry.setHighscoreOfPlayer(score);
+                            }
+                        }
+                    }
+                    if(!playerExist){
+                        highscoreEntries.add(highscore);
+                    }
+                    sortHighscores();
+                    saveHighscores();
+                    gameOver = true;
+                }
+                // continue = Dieser Durchlauf ist fertig. Geh zum nächsten Gegner.
+                continue;
+            }
+
+            // Enemy hat den Bildschirm verlassen
+            if (enemy.isOffScreen()) {
+                enemies.remove(i);
+            }
+        }
+
+
+        // Bewegt und zeichnet alle Asteroids
         for (int i = asteroids.size() - 1; i >= 0; i--) {
                 Asteroid asteroid = asteroids.get(i);
             switch (level) {
@@ -190,7 +296,7 @@ public class SpaceDefender extends PApplet {
             }
             asteroid.move();
             asteroid.display();
-            // Gegner trifft den Spieler
+            // Asteroid trifft den Spieler
             if (asteroid.hitsPlayer(spaceship.x, spaceship.y)) {
                 asteroids.remove(i);
                 lives = lives - 1;
@@ -218,38 +324,15 @@ public class SpaceDefender extends PApplet {
                 continue;
             }
 
-            // Gegner hat den Bildschirm verlassen
+            // Asteriod hat den Bildschirm verlassen
             if (asteroid.isOffScreen()) {
                 asteroids.remove(i);
             }
         }
 
-        // Prüft, ob eine Kugel einen Gegner trifft
-        for (int i = bullets.size() - 1; i >= 0; i--) {
-            Bullet bullet = bullets.get(i);
-
-            for (int j = asteroids.size() - 1; j >= 0; j--) {
-                Asteroid asteroid = asteroids.get(j);
-
-                if (bullet.hits(asteroid)) {
-                    bullets.remove(i);
-                    asteroids.remove(j);
-                    score = score + 10;
-
-                    if(score >= 200){
-                        level = 3;
-                    }else if(score >= 100){
-                        level = 2;
-                    }else {
-                        level = 1;
-                    }
-                    break;
-                }
-            }
-        }
 
 
-        // Erstellt jede Sekunde einen neuen Gegner an einer zufälligen X-Position
+        // Erstellt jede Sekunde einen neuen Asteroiden an einer zufälligen X-Position
         switch (level) {
         case 3 -> {enemySpawnCooldown = 250;}
         case 2 -> {enemySpawnCooldown = 500;}
@@ -259,13 +342,15 @@ public class SpaceDefender extends PApplet {
             float enemyX = random(20, width - 20);
             switch (level) {
             case 3, 2 -> {
-                int randomeAsteroid = (int) random(3);
+                int randomeAsteroid = (int) random(4);
                 if(randomeAsteroid == 0){
                     asteroids.add(new Asteroid(this, enemyX, 0));
                 }else if (randomeAsteroid == 1){
                     asteroids.add(new MediumAsteroid(this, enemyX, 0));
-                } else {
+                } else if (randomeAsteroid == 3){
                     asteroids.add(new BigAsteroid(this, enemyX, 0));
+                } else {
+                    enemies.add(new Enemy(this, enemyX, 0));
                 }
             }
             default -> {
@@ -278,7 +363,6 @@ public class SpaceDefender extends PApplet {
             }
             lastEnemySpawn = millis();
         }
-
 
         //Raumschiff
         spaceship.move();
@@ -396,6 +480,7 @@ public class SpaceDefender extends PApplet {
 
         bullets.clear();
         asteroids.clear();
+        enemies.clear();
 
         shooting = false;
         spaceship.moveLeft = false;
