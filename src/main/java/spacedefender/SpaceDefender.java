@@ -5,6 +5,7 @@ import processing.core.PImage;
 import processing.sound.SoundFile;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 
 import static spacedefender.FileLoader.getSoundFile;
 
@@ -19,7 +20,6 @@ public class SpaceDefender extends PApplet {
     PImage backgroundImage;
 
     int score = 0;
-    int highscore = 0;
     int lives = 3;
 
     //Screens
@@ -27,6 +27,8 @@ public class SpaceDefender extends PApplet {
     boolean gameStartScreen = true;
     boolean tutorialScreen = false;
     boolean highscoreScreen = false;
+    boolean nameEntryScreen = false;
+    String name = "";
 
     boolean shooting = false;
     int lastShotTime = 0;
@@ -42,6 +44,8 @@ public class SpaceDefender extends PApplet {
     // Liste mit allen Gegnern
     ArrayList<Asteroid> asteroids = new ArrayList<>();
 
+    ArrayList<HighscoreEntry> highscoreEntries = new ArrayList<>();
+
 
     @Override
     public void settings() {
@@ -52,6 +56,7 @@ public class SpaceDefender extends PApplet {
     public void setup() {
       //  backgroundImage = loadImage("PNG/blue-preview.png");
         //just to have an example for sound
+        loadHighscores();
         SoundFile sound = getSoundFile(this, "main.ogg");
         sound.play();
         spaceship = new Spaceship(this, width / 2, height - 70);
@@ -76,6 +81,18 @@ public class SpaceDefender extends PApplet {
             textSize(25);
             text("See Highscore Press: H ", width / 2, 430);
 
+            return;
+        }
+
+        if (nameEntryScreen) {
+            fill(255);
+            textAlign(CENTER);
+            textSize(50);
+            text("Gib deinen Namen für die Föderation", width / 2, 150);
+            textSize(25);
+            text("name:" + name, width / 2, 310);
+            textSize(25);
+            text("Press Enter to start", width / 2, 370);
             return;
         }
 
@@ -107,7 +124,14 @@ public class SpaceDefender extends PApplet {
             textSize(50);
             text("HighScore ", width / 2, 150);
             textSize(18);
-            text("Highest Score: " + highscore, width / 2, 210);
+            text("Highest Score", width / 2, 210);
+
+            for(int i = 0; i < highscoreEntries.size(); i++){
+                HighscoreEntry highscoreEntry = highscoreEntries.get(i);
+                String highscoreText = (i+1) + " : " + highscoreEntry.getPlayerName() + " - " + highscoreEntry.getHighscoreOfPlayer();
+                textSize(18);
+                text(highscoreText, width / 2, 250 + (i*30));
+            }
             textSize(15);
             text("Press B to go back to Start Screen ", width / 2, 500);
             return;
@@ -123,12 +147,8 @@ public class SpaceDefender extends PApplet {
             textSize(25);
             text("Score: " + score, width / 2, 310);
 
-            if(score > highscore){
-                highscore = score;
-            }
-
             textSize(25);
-            text("highscore: " + highscore, width / 2, 350);
+            text("highscore: " + highscoreEntries.getFirst().getHighscoreOfPlayer(), width / 2, 350);
 
             textSize(20);
             text("Press R to Replay", width / 2, 400);
@@ -172,6 +192,10 @@ public class SpaceDefender extends PApplet {
                 lives = lives - 1;
                 // Wenn keine Leben mehr vorhanden sind, ist das Spiel beendet
                 if (lives <= 0) {
+                    HighscoreEntry highscore = new HighscoreEntry(name, score);
+                    highscoreEntries.add(highscore);
+                    sortHighscores();
+                    saveHighscores();
                     gameOver = true;
                 }
                 // continue = Dieser Durchlauf ist fertig. Geh zum nächsten Gegner.
@@ -226,8 +250,25 @@ public class SpaceDefender extends PApplet {
         // Startet das Spiel
         if (gameStartScreen && (key == 's' || key == 'S')) {
             gameStartScreen = false;
+            nameEntryScreen = true;
             return;
         }
+
+        if(nameEntryScreen){
+           if(key == ENTER){
+               if(!name.isEmpty()){
+                   nameEntryScreen = false;
+               }
+           } else if(key == BACKSPACE) {
+               if(!name.isEmpty()){
+                   name = name.substring(0, name.length()-1);
+               }
+           }else {
+               name = name + key;
+           }
+            return;
+        }
+
 
         // Startet Tutorial
         if (gameStartScreen && (key == 't' || key == 'T')) {
@@ -303,7 +344,6 @@ public class SpaceDefender extends PApplet {
 
         spaceship = new Spaceship(this, width /2, height-70);
 
-
         bullets.clear();
         asteroids.clear();
 
@@ -312,6 +352,36 @@ public class SpaceDefender extends PApplet {
         spaceship.moveRight = false;
 
         lastEnemySpawn = millis();
+    }
+
+    public void sortHighscores(){
+        highscoreEntries.sort(
+            Comparator.comparingInt(HighscoreEntry::getHighscoreOfPlayer).reversed()
+        );
+    }
+
+    public void saveHighscores(){
+        String[] data = new String[highscoreEntries.size()];
+
+        for(int i = 0; i<highscoreEntries.size(); i++){
+            HighscoreEntry highscoreEntry = highscoreEntries.get(i);
+            data[i] = highscoreEntry.getPlayerName() + ";" + highscoreEntry.getHighscoreOfPlayer();
+        }
+
+        saveStrings("src/main/resources/data/highscores.csv", data);
+    }
+
+    public void loadHighscores(){
+        String[] data = loadStrings("src/main/resources/data/highscores.csv");
+        if (data == null) {return;}
+        for(int i = 0; i < data.length; i++){
+            String[] parts = data[i].split(";");
+            String playerName = parts[0];
+            int playerScore = Integer.parseInt(parts[1]);
+            HighscoreEntry highscoreEntry = new HighscoreEntry(playerName, playerScore);
+            highscoreEntries.add(highscoreEntry);
+        }
+        sortHighscores();
     }
 
 }
