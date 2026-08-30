@@ -90,7 +90,7 @@ public class SpaceDefender extends PApplet {
             textSize(50);
             text("Gib deinen Namen für die Föderation", width / 2, 150);
             textSize(25);
-            text("name:" + name, width / 2, 310);
+            text("name: " + name, width / 2, 310);
             textSize(25);
             text("Press Enter to start", width / 2, 370);
             return;
@@ -192,8 +192,20 @@ public class SpaceDefender extends PApplet {
                 lives = lives - 1;
                 // Wenn keine Leben mehr vorhanden sind, ist das Spiel beendet
                 if (lives <= 0) {
+                    boolean playerExist = false;
                     HighscoreEntry highscore = new HighscoreEntry(name, score);
-                    highscoreEntries.add(highscore);
+                    for (int h = 0; h < highscoreEntries.size(); h++) {
+                        HighscoreEntry highscoreEntry = highscoreEntries.get(h);
+                        if (highscoreEntry.getPlayerName().equals(name)){
+                            playerExist = true;
+                            if(highscoreEntry.getHighscoreOfPlayer() < score){
+                                highscoreEntry.setHighscoreOfPlayer(score);
+                            }
+                        }
+                    }
+                    if(!playerExist){
+                        highscoreEntries.add(highscore);
+                    }
                     sortHighscores();
                     saveHighscores();
                     gameOver = true;
