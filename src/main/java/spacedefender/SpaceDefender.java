@@ -257,7 +257,25 @@ public class SpaceDefender extends PApplet {
         }
         if (millis() - lastEnemySpawn >= enemySpawnCooldown) {
             float enemyX = random(20, width - 20);
-            asteroids.add(new Asteroid(this, enemyX, 0));
+            switch (level) {
+            case 3, 2 -> {
+                int randomeAsteroid = (int) random(3);
+                if(randomeAsteroid == 0){
+                    asteroids.add(new Asteroid(this, enemyX, 0));
+                }else if (randomeAsteroid == 1){
+                    asteroids.add(new MediumAsteroid(this, enemyX, 0));
+                } else {
+                    asteroids.add(new BigAsteroid(this, enemyX, 0));
+                }
+            }
+            default -> {
+                int randomeAsteroid = (int) random(2);
+                if(randomeAsteroid == 0){
+                    asteroids.add(new Asteroid(this, enemyX, 0));
+                }else {
+                    asteroids.add(new MediumAsteroid(this, enemyX, 0));
+                }            }
+            }
             lastEnemySpawn = millis();
         }
 

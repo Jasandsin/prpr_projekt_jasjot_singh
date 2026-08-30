@@ -25,9 +25,8 @@ public class Bullet extends SpaceObject  {
     public boolean hits(Asteroid asteroid) {
         float distanceX = x - asteroid.x;
         float distanceY = y - asteroid.y;
-
         //Math.abs negative zahlen positiv bullet kann r or l sein vom mittelpunkt des enemies
-        return Math.abs(distanceX) < 20 && Math.abs(distanceY) < 20;
+        return Math.abs(distanceX) < asteroid.getBulletHitbox() && Math.abs(distanceY) < asteroid.getBulletHitbox();
     }
 
 }

@@ -8,7 +8,7 @@ public class Asteroid extends SpaceObject {
 
     public Asteroid( PApplet pApplet, float x, float y) {
         super(pApplet, x, y);
-        this.image = pApplet.loadImage("PNG/Meteors/meteorGrey_med1.png");
+        this.image = pApplet.loadImage("PNG/Meteors/meteorGrey_small1.png");
     }
 
     // Bewegt den Gegner nach unten
@@ -26,10 +26,14 @@ public class Asteroid extends SpaceObject {
         float distanceX = x - playerX;
         float distanceY = y - playerY;
 
-        return Math.abs(distanceX) < 30 && Math.abs(distanceY) < 30;
+        return Math.abs(distanceX) < 45 && Math.abs(distanceY) < 35;
     }
 
     public void setSpeed(float speed) {
         this.speed = speed;
+    }
+
+    public float getBulletHitbox() {
+        return 20;
     }
 }
