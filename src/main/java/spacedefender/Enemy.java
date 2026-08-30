@@ -48,7 +48,6 @@ public class Enemy extends SpaceObject{
         return Math.abs(distanceX) < 45 && Math.abs(distanceY) < 35;
     }
 
-
     public boolean canShoot(){
         if (pApplet.millis() - lastShotTime >= shootCooldown) {
             lastShotTime = pApplet.millis();
@@ -56,8 +55,6 @@ public class Enemy extends SpaceObject{
         }
         return false;
     }
-
-
 
     public boolean isOffScreen() {
         return y > pApplet.height;

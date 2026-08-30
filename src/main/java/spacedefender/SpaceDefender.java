@@ -34,6 +34,7 @@ public class SpaceDefender extends PApplet {
     boolean shooting = false;
     int lastShotTime = 0;
     int shootCooldown = 200;
+    boolean bossSpawned = false;
 
     // Zeitpunkt des letzten Gegner-Spawns und Wartezeit zwischen zwei Gegnern
     int lastEnemySpawn = 0;
@@ -194,40 +195,57 @@ public class SpaceDefender extends PApplet {
             if(bullet.isPlayerBullet()){
                 for (int j = enemies.size() - 1; j >= 0; j--) {
                     Enemy enemy = enemies.get(j);
-
-                    if (bullet.hitsEnemy(enemy)) {
-                        bullets.remove(i);
-                        enemies.remove(j);
-                        score = score + 30;
-                        bulletHit = true;
-                        break;
+                    if (enemy instanceof EnemyBoss) {
+                        if (bullet.hitsEnemy(enemy)) {
+                            ((EnemyBoss) enemy).takeDamage();
+                            bullets.remove(i);
+                            bulletHit = true;
+                            if (((EnemyBoss) enemy).isDead()) {
+                                enemies.remove(j);
+                                score = score + 1000;
+                            }
+                            break;
+                        }
+                    } else {
+                        if (bullet.hitsEnemy(enemy)) {
+                            bullets.remove(i);
+                            enemies.remove(j);
+                            score = score + 30;
+                            bulletHit = true;
+                            break;
+                        }
                     }
                 }
+                        // Wenn bereits Enemy getroffen wurde,
+                        // nächste Bullet prüfen
+                        if (bulletHit) {
+                            continue;
+                        }
 
-                // Wenn bereits Enemy getroffen wurde,
-                // nächste Bullet prüfen
-                if (bulletHit) {
+
+                    for (int j = asteroids.size() - 1; j >= 0; j--) {
+                        Asteroid asteroid = asteroids.get(j);
+
+                        if (bullet.hitsAsteroid(asteroid)) {
+                            bullets.remove(i);
+                            asteroids.remove(j);
+                            score = score + 10;
+                            break;
+                        }
+                    }
+                }
+                if (!bullet.isPlayerBullet() && bullet.hitsPlayer(spaceship)) {
+                    bullets.remove(i);
+                    lives = lives -1;
                     continue;
                 }
-
-                for (int j = asteroids.size() - 1; j >= 0; j--) {
-                    Asteroid asteroid = asteroids.get(j);
-
-                    if (bullet.hitsAsteroid(asteroid)) {
-                        bullets.remove(i);
-                        asteroids.remove(j);
-                        score = score + 10;
-                        break;
                     }
-                }
-            }
-            if (!bullet.isPlayerBullet() && bullet.hitsPlayer(spaceship)) {
-                bullets.remove(i);
-                lives = lives -1;
-                continue;
-            }
-        }
 
+
+        if (level == 3 && !bossSpawned) {
+            enemies.add(new EnemyBoss(this, width / 2, 50));
+            bossSpawned = true;
+        }
 
             if(score >= 200){
                 level = 3;
