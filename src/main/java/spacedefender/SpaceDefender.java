@@ -21,6 +21,8 @@ public class SpaceDefender extends PApplet {
 
     int score = 0;
     int lives = 3;
+    int level = 1;
+    String name = "";
 
     //Screens
     boolean gameOver = false;
@@ -28,7 +30,6 @@ public class SpaceDefender extends PApplet {
     boolean tutorialScreen = false;
     boolean highscoreScreen = false;
     boolean nameEntryScreen = false;
-    String name = "";
 
     boolean shooting = false;
     int lastShotTime = 0;
@@ -181,11 +182,14 @@ public class SpaceDefender extends PApplet {
 
         // Bewegt und zeichnet alle Gegner
         for (int i = asteroids.size() - 1; i >= 0; i--) {
-            Asteroid asteroid = asteroids.get(i);
-
+                Asteroid asteroid = asteroids.get(i);
+            switch (level) {
+            case 3 -> {asteroid.setSpeed(6);}
+            case 2 -> {asteroid.setSpeed(4);}
+            default -> {asteroid.setSpeed(2);}
+            }
             asteroid.move();
             asteroid.display();
-
             // Gegner trifft den Spieler
             if (asteroid.hitsPlayer(spaceship.x, spaceship.y)) {
                 asteroids.remove(i);
@@ -231,12 +235,26 @@ public class SpaceDefender extends PApplet {
                     bullets.remove(i);
                     asteroids.remove(j);
                     score = score + 10;
+
+                    if(score >= 200){
+                        level = 3;
+                    }else if(score >= 100){
+                        level = 2;
+                    }else {
+                        level = 1;
+                    }
                     break;
                 }
             }
         }
 
+
         // Erstellt jede Sekunde einen neuen Gegner an einer zufälligen X-Position
+        switch (level) {
+        case 3 -> {enemySpawnCooldown = 250;}
+        case 2 -> {enemySpawnCooldown = 500;}
+        default -> {enemySpawnCooldown = 1000;}
+        }
         if (millis() - lastEnemySpawn >= enemySpawnCooldown) {
             float enemyX = random(20, width - 20);
             asteroids.add(new Asteroid(this, enemyX, 0));
@@ -254,6 +272,7 @@ public class SpaceDefender extends PApplet {
         textSize(20);
         text("Score: " + score, 20, 30);
         text("Lives: " + lives, 20, 55);
+        text("Level: " + level, 20, 80);
     }
 
     @Override
@@ -353,6 +372,7 @@ public class SpaceDefender extends PApplet {
         score = 0;
         lives = 3;
         gameOver = false;
+        level = 1;
 
         spaceship = new Spaceship(this, width /2, height-70);
 

@@ -29,4 +29,7 @@ public class Asteroid extends SpaceObject {
         return Math.abs(distanceX) < 30 && Math.abs(distanceY) < 30;
     }
 
+    public void setSpeed(float speed) {
+        this.speed = speed;
+    }
 }
