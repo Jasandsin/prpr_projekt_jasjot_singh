@@ -28,6 +28,7 @@ public class SpaceDefender extends PApplet {
     SoundFile gameMusic;
     SoundFile gameOverMusic;
     SoundFile VictoryMusic;
+    SoundFile EndBossMusic;
 
     int score = 0;
     int lives = 3;
@@ -77,6 +78,7 @@ public class SpaceDefender extends PApplet {
         gameMusic = getSoundFile(this, "Battle in the Stars.ogg");
         gameOverMusic = getSoundFile(this, "Defeated (Game Over Tune).ogg");
         VictoryMusic = getSoundFile(this, "Victory Tune.ogg");
+        EndBossMusic = getSoundFile(this, "DeathMatch (Boss Theme).ogg");
         menuMusic.loop();
 
         // Font
@@ -118,10 +120,7 @@ public class SpaceDefender extends PApplet {
         // Zeigt den Game-Over-Screen und stoppt den restlichen Spielablauf
         if (gameOverScreen) { drawGameOverScreen(); return; }
 
-        if(VictoryScreen) {
-            drawVictoryScreen();
-            return;
-        }
+        if(VictoryScreen) {drawVictoryScreen();return;}
 
         // shooting 200ms abstand. 1000 ms / 200 ms = 5 Schüsse pro Sekunde
         // Solange die Leertaste gedrückt ist, wird nach jedem Cooldown eine neue Kugel erstellt
@@ -234,12 +233,16 @@ public class SpaceDefender extends PApplet {
         }
 
 
+        // Level 3 EndBoss Spawn
         if (level == 3 && !bossSpawned) {
             enemies.add(new EnemyBoss(this, width / 2, 50));
             bossSpawned = true;
+            startEndBossMusic();
             SoundFile enemyShootSound = getSoundFile(this, "engine-looping_2.wav");
             enemyShootSound.play();
         }
+
+        // Level Aufstieg
             if(score >= 500){
                 level = 3;
             }else if(score >= 300){
@@ -574,7 +577,7 @@ public class SpaceDefender extends PApplet {
                 rect(width / 2, 42, 200, 12);
 
                 // Aktuelle HP
-                float healthWidth = boss.getHealth() / 250.0f * 200;
+                float healthWidth = boss.getHealth() / 150.0f * 200;
                 fill(255, 0, 0);
                 rectMode(CORNER);
                 rect(width / 2 - 100, 36, healthWidth, 12);
@@ -840,6 +843,7 @@ public class SpaceDefender extends PApplet {
         menuMusic.stop();
         gameOverMusic.stop();
         VictoryMusic.stop();
+        EndBossMusic.stop();
         if (!gameMusic.isPlaying()) {
             gameMusic.loop();
         }
@@ -849,6 +853,7 @@ public class SpaceDefender extends PApplet {
         menuMusic.stop();
         gameMusic.stop();
         VictoryMusic.stop();
+        EndBossMusic.stop();
         if (!gameOverMusic.isPlaying()) {
             gameOverMusic.loop();
         }
@@ -858,6 +863,7 @@ public class SpaceDefender extends PApplet {
         menuMusic.stop();
         gameMusic.stop();
         gameOverMusic.stop();
+        EndBossMusic.stop();
         if (!VictoryMusic.isPlaying()) {
             VictoryMusic.loop();
         }
@@ -867,8 +873,18 @@ public class SpaceDefender extends PApplet {
         gameOverMusic.stop();
         gameMusic.stop();
         VictoryMusic.stop();
+        EndBossMusic.stop();
         if (!menuMusic.isPlaying()) {
             menuMusic.loop();
+        }
+    }
+
+    public void startEndBossMusic(){
+        gameOverMusic.stop();
+        gameMusic.stop();
+        VictoryMusic.stop();
+        if (!EndBossMusic.isPlaying()) {
+            EndBossMusic.loop();
         }
     }
 

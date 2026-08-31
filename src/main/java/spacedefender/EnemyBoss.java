@@ -5,7 +5,7 @@ import processing.core.PImage;
 
 public class EnemyBoss extends Enemy{
 
-    int health = 250;
+    int health = 150;
     PImage spriteSheetBoss = pApplet.loadImage("UI-Design/SpaceShip_Boss-0001.png");
 
     public EnemyBoss(PApplet pApplet, float x, float y) {

@@ -11,7 +11,7 @@ public class Spaceship extends SpaceObject{
     boolean moveRight = false;
 
     public Spaceship( PApplet pApplet, float x, float y) {
-        super(pApplet, x, y, 60, 63);
+        super(pApplet, x, y, 50, 53);
         PImage spriteSheet = pApplet.loadImage("UI-Design/SpaceShips_Player-0001.png");
         this.image = spriteSheet.get(140, 22, 39, 41);
     }
