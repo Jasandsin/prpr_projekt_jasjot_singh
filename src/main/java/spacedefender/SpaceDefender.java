@@ -237,6 +237,25 @@ public class SpaceDefender extends PApplet {
                 if (!bullet.isPlayerBullet() && bullet.hitsPlayer(spaceship)) {
                     bullets.remove(i);
                     lives = lives -1;
+                    if (lives <= 0) {
+                        boolean playerExist = false;
+                        HighscoreEntry highscore = new HighscoreEntry(name, score);
+                        for (int h = 0; h < highscoreEntries.size(); h++) {
+                            HighscoreEntry highscoreEntry = highscoreEntries.get(h);
+                            if (highscoreEntry.getPlayerName().equals(name)){
+                                playerExist = true;
+                                if(highscoreEntry.getHighscoreOfPlayer() < score){
+                                    highscoreEntry.setHighscoreOfPlayer(score);
+                                }
+                            }
+                        }
+                        if(!playerExist){
+                            highscoreEntries.add(highscore);
+                        }
+                        sortHighscores();
+                        saveHighscores();
+                        gameOver = true;
+                    }
                     continue;
                 }
                     }
@@ -308,8 +327,8 @@ public class SpaceDefender extends PApplet {
         for (int i = asteroids.size() - 1; i >= 0; i--) {
                 Asteroid asteroid = asteroids.get(i);
             switch (level) {
-            case 3 -> {asteroid.setSpeed(6);}
-            case 2 -> {asteroid.setSpeed(4);}
+            case 3 -> {asteroid.setSpeed(4);}
+            case 2 -> {asteroid.setSpeed(3);}
             default -> {asteroid.setSpeed(2);}
             }
             asteroid.move();
@@ -352,9 +371,9 @@ public class SpaceDefender extends PApplet {
 
         // Erstellt jede Sekunde einen neuen Asteroiden an einer zufälligen X-Position
         switch (level) {
-        case 3 -> {enemySpawnCooldown = 250;}
-        case 2 -> {enemySpawnCooldown = 500;}
-        default -> {enemySpawnCooldown = 1000;}
+        case 3 -> {enemySpawnCooldown = 500;}
+        case 2 -> {enemySpawnCooldown = 1000;}
+        default -> {enemySpawnCooldown = 2000;}
         }
         if (millis() - lastEnemySpawn >= enemySpawnCooldown) {
             float enemyX = random(20, width - 20);
@@ -393,6 +412,12 @@ public class SpaceDefender extends PApplet {
         text("Score: " + score, 20, 30);
         text("Lives: " + lives, 20, 55);
         text("Level: " + level, 20, 80);
+        for (int j = enemies.size() - 1; j >= 0; j--) {
+            Enemy enemy = enemies.get(j);
+            if (enemy instanceof EnemyBoss) {
+                text("Boss HP: " + ((EnemyBoss) enemy).getHealth(), 20, 105);
+            }
+        }
     }
 
     @Override
@@ -493,6 +518,7 @@ public class SpaceDefender extends PApplet {
         lives = 3;
         gameOver = false;
         level = 1;
+        bossSpawned = false;
 
         spaceship = new Spaceship(this, width /2, height-70);
 

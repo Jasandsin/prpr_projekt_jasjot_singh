@@ -7,7 +7,7 @@ import static spacedefender.FileLoader.getSoundFile;
 
 public class Enemy extends SpaceObject{
 
-    int speed = 2;
+    int speed = 1;
     int directionX = 1;
     float startX;
     int lastShotTime = 0;

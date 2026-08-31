@@ -30,4 +30,18 @@ public class EnemyBoss extends Enemy{
         return false;
     }
 
+    @Override
+    public void move(){
+        y = 50;
+        x = x + (speed * directionX);
+
+        // Wenn am Rand
+        if (x >= pApplet.width - 20) {
+            directionX = -1;
+        }
+        if (x <= 20) {
+            directionX = 1;
+        }
+    }
+
 }
