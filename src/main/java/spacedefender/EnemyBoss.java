@@ -5,12 +5,12 @@ import processing.core.PImage;
 
 public class EnemyBoss extends Enemy{
 
-    int health = 5;
+    int health = 250;
     PImage spriteSheetBoss = pApplet.loadImage("UI-Design/SpaceShip_Boss-0001.png");
 
     public EnemyBoss(PApplet pApplet, float x, float y) {
         super(pApplet, x, y);
-        this.shootCooldown = 1500;
+        this.shootCooldown = 1000;
         image = spriteSheetBoss.get(139, 36, 106, 106);
         objectWidth = 120;
         objectHeight = 120;

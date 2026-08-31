@@ -5,7 +5,7 @@ import processing.core.PImage;
 
 public class Spaceship extends SpaceObject{
 
-    float speed = 5;
+    float speed = 8;
 
     boolean moveLeft = false;
     boolean moveRight = false;

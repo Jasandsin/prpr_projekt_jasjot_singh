@@ -27,6 +27,7 @@ public class SpaceDefender extends PApplet {
     SoundFile menuMusic;
     SoundFile gameMusic;
     SoundFile gameOverMusic;
+    SoundFile VictoryMusic;
 
     int score = 0;
     int lives = 3;
@@ -75,6 +76,7 @@ public class SpaceDefender extends PApplet {
         menuMusic = getSoundFile(this, "Brave Pilots (Menu Screen).ogg");
         gameMusic = getSoundFile(this, "Battle in the Stars.ogg");
         gameOverMusic = getSoundFile(this, "Defeated (Game Over Tune).ogg");
+        VictoryMusic = getSoundFile(this, "Victory Tune.ogg");
         menuMusic.loop();
 
         // Font
@@ -160,9 +162,10 @@ public class SpaceDefender extends PApplet {
                             if (((EnemyBoss) enemy).isDead()) {
                                 enemies.remove(j);
                                 score = score + 1000;
-                                SoundFile destroySound = getSoundFile(this, "explosionCrunch_001.ogg");
+                                SoundFile destroySound = getSoundFile(this, "explosion-large_3.wav");
                                 destroySound.play();
                                 VictoryScreen = true;
+                                startVictoryMusic();
                             }
                             break;
                         }
@@ -225,19 +228,21 @@ public class SpaceDefender extends PApplet {
 
                         gameOverScreen = true;
                         startGameOverMusic();
+                        return;
                     }
-                    continue;
                 }
-                    }
+        }
 
 
         if (level == 3 && !bossSpawned) {
             enemies.add(new EnemyBoss(this, width / 2, 50));
             bossSpawned = true;
+            SoundFile enemyShootSound = getSoundFile(this, "engine-looping_2.wav");
+            enemyShootSound.play();
         }
-            if(score >= 200){
+            if(score >= 500){
                 level = 3;
-            }else if(score >= 100){
+            }else if(score >= 300){
                 level = 2;
             }else {
                 level = 1;
@@ -285,9 +290,8 @@ public class SpaceDefender extends PApplet {
                     destroySound.play();
                     gameOverScreen = true;
                     startGameOverMusic();
+                    return;
                 }
-                // continue = Dieser Durchlauf ist fertig. Geh zum nächsten Gegner.
-                continue;
             }
             // Enemy hat den Bildschirm verlassen
             if (enemy.isOffScreen()) {
@@ -332,9 +336,8 @@ public class SpaceDefender extends PApplet {
                     destroySound.play();
                     gameOverScreen = true;
                     startGameOverMusic();
+                    return;
                 }
-                // continue = Dieser Durchlauf ist fertig. Geh zum nächsten Gegner.
-                continue;
             }
             // Asteriod hat den Bildschirm verlassen
             if (asteroid.isOffScreen()) {
@@ -346,9 +349,9 @@ public class SpaceDefender extends PApplet {
 
         // Erstellt jede Sekunde einen neuen Asteroiden an einer zufälligen X-Position
         switch (level) {
-        case 3 -> {enemySpawnCooldown = 800;}
-        case 2 -> {enemySpawnCooldown = 1000;}
-        default -> {enemySpawnCooldown = 1500;}
+        case 3 -> enemySpawnCooldown = 800;
+        case 2 -> enemySpawnCooldown = 1000;
+        default -> enemySpawnCooldown = 1200;
         }
         if (millis() - lastEnemySpawn >= enemySpawnCooldown) {
             float enemyX = random(20, width - 20);
@@ -439,7 +442,7 @@ public class SpaceDefender extends PApplet {
 
 
         //Replay
-        if (gameOverScreen || VictoryScreen && (key == 'r' || key == 'R')) {
+        if ((gameOverScreen || VictoryScreen) && (key == 'r' || key == 'R')) {
             restartGame();
             startGameMusic();
             return;
@@ -485,11 +488,8 @@ public class SpaceDefender extends PApplet {
     public void restartGame() {
         score = 0;
         lives = 3;
-        if(gameOverScreen){
-            gameOverScreen = false;
-        }else {
-            VictoryScreen = false;
-        }
+        gameOverScreen = false;
+        VictoryScreen = false;
         level = 1;
         bossSpawned = false;
 
@@ -574,7 +574,7 @@ public class SpaceDefender extends PApplet {
                 rect(width / 2, 42, 200, 12);
 
                 // Aktuelle HP
-                float healthWidth = boss.getHealth() * 40;
+                float healthWidth = boss.getHealth() / 250.0f * 200;
                 fill(255, 0, 0);
                 rectMode(CORNER);
                 rect(width / 2 - 100, 36, healthWidth, 12);
@@ -839,6 +839,7 @@ public class SpaceDefender extends PApplet {
     public void startGameMusic() {
         menuMusic.stop();
         gameOverMusic.stop();
+        VictoryMusic.stop();
         if (!gameMusic.isPlaying()) {
             gameMusic.loop();
         }
@@ -847,14 +848,25 @@ public class SpaceDefender extends PApplet {
     public void startGameOverMusic(){
         menuMusic.stop();
         gameMusic.stop();
+        VictoryMusic.stop();
         if (!gameOverMusic.isPlaying()) {
             gameOverMusic.loop();
+        }
+    }
+
+    public void startVictoryMusic(){
+        menuMusic.stop();
+        gameMusic.stop();
+        gameOverMusic.stop();
+        if (!VictoryMusic.isPlaying()) {
+            VictoryMusic.loop();
         }
     }
 
     public void startMenuMusic(){
         gameOverMusic.stop();
         gameMusic.stop();
+        VictoryMusic.stop();
         if (!menuMusic.isPlaying()) {
             menuMusic.loop();
         }

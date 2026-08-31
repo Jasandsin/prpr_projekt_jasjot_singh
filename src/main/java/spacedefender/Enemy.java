@@ -32,10 +32,10 @@ public class Enemy extends SpaceObject{
         }
 
         // 50 Pixel bewegen beim spawn punkt
-        if (x >= startX + 50) {
+        if (x >= startX + 80) {
             directionX = -1;
         }
-        if (x <= startX - 50) {
+        if (x <= startX - 80) {
             directionX = 1;
         }
     }
