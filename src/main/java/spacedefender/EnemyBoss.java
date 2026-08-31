@@ -1,16 +1,19 @@
 package spacedefender;
 
 import processing.core.PApplet;
+import processing.core.PImage;
 
 public class EnemyBoss extends Enemy{
 
     int health = 5;
+    PImage spriteSheetBoss = pApplet.loadImage("UI-Design/SpaceShip_Boss-0001.png");
+
 
 
     public EnemyBoss(PApplet pApplet, float x, float y) {
         super(pApplet, x, y);
-        this.image = pApplet.loadImage("PNG/Enemies/enemyRed5.png");
         this.shootCooldown = 1500;
+        image = spriteSheetBoss.get(139, 36, 106, 106);
     }
 
 

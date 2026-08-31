@@ -1,9 +1,7 @@
 package spacedefender;
 
 import processing.core.PApplet;
-import processing.sound.SoundFile;
-
-import static spacedefender.FileLoader.getSoundFile;
+import processing.core.PImage;
 
 public class Enemy extends SpaceObject{
 
@@ -12,11 +10,13 @@ public class Enemy extends SpaceObject{
     float startX;
     int lastShotTime = 0;
     int shootCooldown = 2000;
+    PImage spriteSheet = pApplet.loadImage("UI-Design/SpaceShips_Enemy-0001.png");
+
 
     public Enemy(PApplet pApplet, float x, float y) {
         super(pApplet, x, y);
         this.startX = x;
-        this.image = pApplet.loadImage("PNG/Enemies/enemyBlack1.png");
+        this.image = spriteSheet.get(92, 17, 45, 36);
     }
 
     public void move(){

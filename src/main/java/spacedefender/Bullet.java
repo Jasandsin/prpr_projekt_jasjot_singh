@@ -1,16 +1,19 @@
 package spacedefender;
 
 import processing.core.PApplet;
+import processing.core.PImage;
 
 public class Bullet extends SpaceObject  {
 
     float speed = 8;
     int directionY;
+    PImage spriteSheetBullet = pApplet.loadImage("UI-Design/Bullets-0001.png");
+
 
     public Bullet(PApplet pApplet, float x, float y, int directionY) {
         super(pApplet, x, y);
         this.directionY = directionY;
-        this.image = pApplet.loadImage("PNG/Lasers/laserBlue01.png");
+        image = spriteSheetBullet.get(148, 16, 7, 19);
     }
 
     //Schiesst nach oben y = 0 ist oben deshalb y - speed (verkleinern)

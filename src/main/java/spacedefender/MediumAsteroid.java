@@ -6,7 +6,7 @@ public class MediumAsteroid extends Asteroid{
 
     public MediumAsteroid(PApplet pApplet, float x, float y) {
         super(pApplet, x, y);
-        this.image = pApplet.loadImage("PNG/Meteors/meteorGrey_med1.png");
+        this.image = spriteSheetAsteroid.get(83, 35, 26, 26);
     }
 
     @Override

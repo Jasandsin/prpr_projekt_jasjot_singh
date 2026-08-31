@@ -23,6 +23,7 @@ public class SpaceDefender extends PApplet {
     int lives = 3;
     int level = 1;
     String name = "";
+    int backgroundY = 0;
 
     //Screens
     boolean gameOver = false;
@@ -58,20 +59,24 @@ public class SpaceDefender extends PApplet {
 
     @Override
     public void setup() {
-      //  backgroundImage = loadImage("PNG/blue-preview.png");
+        level = 3;
+        backgroundImage = loadImage("UI-Design/Background_Full-0001.png");
         //just to have an example for sound
         loadHighscores();
         SoundFile sound = getSoundFile(this, "main.ogg");
         sound.play();
         spaceship = new Spaceship(this, width / 2, height - 70);
-        asteroids.add(new Asteroid(this,400, 50));
-        enemies.add(new Enemy(this, 400, 50));
         imageMode(CENTER);
     }
 
     @Override
     public void draw() {
-        background(20);
+        image(backgroundImage, width / 2, height / 2 + backgroundY, width, height);
+        image(backgroundImage, width / 2, backgroundY - height / 2 , width, height);
+        backgroundY = backgroundY + 1;
+        if(backgroundY >= height){
+            backgroundY = 0;
+        }
 
         // Zeigt den Start Screen mit Start, Tutorial und Highscore
         if (gameStartScreen) {

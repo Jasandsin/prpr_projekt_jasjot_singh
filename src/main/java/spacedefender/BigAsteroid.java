@@ -6,8 +6,7 @@ public class BigAsteroid extends Asteroid{
 
     public BigAsteroid(PApplet pApplet, float x, float y) {
         super(pApplet, x, y);
-        this.image = pApplet.loadImage("PNG/Meteors/meteorGrey_big1.png");
-
+        this.image = spriteSheetAsteroid.get(70, 69, 39, 38);
     }
 
     @Override

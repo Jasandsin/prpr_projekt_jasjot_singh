@@ -1,14 +1,16 @@
 package spacedefender;
 
 import processing.core.PApplet;
+import processing.core.PImage;
 
 public class Asteroid extends SpaceObject {
 
     float speed = 2;
+    PImage spriteSheetAsteroid = pApplet.loadImage("UI-Design/Asteroids-0001.png");
 
     public Asteroid( PApplet pApplet, float x, float y) {
         super(pApplet, x, y);
-        this.image = pApplet.loadImage("PNG/Meteors/meteorGrey_small1.png");
+        this.image = spriteSheetAsteroid.get(96, 16, 16, 16);
     }
 
     // Bewegt den Gegner nach unten

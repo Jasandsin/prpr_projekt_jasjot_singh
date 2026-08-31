@@ -1,6 +1,7 @@
 package spacedefender;
 
 import processing.core.PApplet;
+import processing.core.PImage;
 
 public class Spaceship extends SpaceObject{
 
@@ -11,7 +12,8 @@ public class Spaceship extends SpaceObject{
 
     public Spaceship( PApplet pApplet, float x, float y) {
         super(pApplet, x, y);
-        this.image = pApplet.loadImage("PNG/playerShip1_blue.png");
+        PImage spriteSheet = pApplet.loadImage("UI-Design/SpaceShips_Player-0001.png");
+        this.image = spriteSheet.get(140, 22, 39, 41);
     }
 
     public void move(){
