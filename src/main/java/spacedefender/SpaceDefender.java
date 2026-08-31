@@ -131,14 +131,14 @@ public class SpaceDefender extends PApplet {
             textSize(18);
             text("Highest Score", width / 2, 210);
 
-            for(int i = 0; i < highscoreEntries.size(); i++){
+            for(int i = 0; i < highscoreEntries.size() && i < 10; i++){
                 HighscoreEntry highscoreEntry = highscoreEntries.get(i);
                 String highscoreText = (i+1) + " : " + highscoreEntry.getPlayerName() + " - " + highscoreEntry.getHighscoreOfPlayer();
                 textSize(18);
                 text(highscoreText, width / 2, 250 + (i*30));
             }
             textSize(15);
-            text("Press B to go back to Start Screen ", width / 2, 500);
+            text("Press B to go back to Start Screen ", width / 2, 550);
             return;
         }
 
@@ -148,20 +148,15 @@ public class SpaceDefender extends PApplet {
             textAlign(CENTER);
             textSize(50);
             text("GAME OVER", width / 2, 250);
-
             textSize(25);
             text("Score: " + score, width / 2, 310);
-
             textSize(25);
             text("highscore: " + highscoreEntries.getFirst().getHighscoreOfPlayer(), width / 2, 350);
-
             textSize(20);
             text("Press R to Replay", width / 2, 400);
 
-
             return;
         }
-
 
         // shooting 200ms abstand. 1000 ms / 200 ms = 5 Schüsse pro Sekunde
         // Solange die Leertaste gedrückt ist, wird nach jedem Cooldown eine neue Kugel erstellt
@@ -171,8 +166,6 @@ public class SpaceDefender extends PApplet {
             SoundFile shootsound = getSoundFile(this, "enemy_shoot.ogg");
             shootsound.play();
         }
-
-
 
         // Bewegt und zeichnet alle Kugeln.
         // Kugeln ausserhalb des Bildschirms werden aus der Liste entfernt.
@@ -184,8 +177,6 @@ public class SpaceDefender extends PApplet {
                 bullets.remove(i);
             }
         }
-
-
 
 
         // Prüft, ob eine Kugel einen Enemy oder Asteroid trifft
@@ -221,7 +212,6 @@ public class SpaceDefender extends PApplet {
                         if (bulletHit) {
                             continue;
                         }
-
 
                     for (int j = asteroids.size() - 1; j >= 0; j--) {
                         Asteroid asteroid = asteroids.get(j);
@@ -265,7 +255,6 @@ public class SpaceDefender extends PApplet {
             enemies.add(new EnemyBoss(this, width / 2, 50));
             bossSpawned = true;
         }
-
             if(score >= 200){
                 level = 3;
             }else if(score >= 100){
@@ -315,7 +304,6 @@ public class SpaceDefender extends PApplet {
                 // continue = Dieser Durchlauf ist fertig. Geh zum nächsten Gegner.
                 continue;
             }
-
             // Enemy hat den Bildschirm verlassen
             if (enemy.isOffScreen()) {
                 enemies.remove(i);
@@ -360,7 +348,6 @@ public class SpaceDefender extends PApplet {
                 // continue = Dieser Durchlauf ist fertig. Geh zum nächsten Gegner.
                 continue;
             }
-
             // Asteriod hat den Bildschirm verlassen
             if (asteroid.isOffScreen()) {
                 asteroids.remove(i);
@@ -371,9 +358,9 @@ public class SpaceDefender extends PApplet {
 
         // Erstellt jede Sekunde einen neuen Asteroiden an einer zufälligen X-Position
         switch (level) {
-        case 3 -> {enemySpawnCooldown = 500;}
+        case 3 -> {enemySpawnCooldown = 800;}
         case 2 -> {enemySpawnCooldown = 1000;}
-        default -> {enemySpawnCooldown = 2000;}
+        default -> {enemySpawnCooldown = 1500;}
         }
         if (millis() - lastEnemySpawn >= enemySpawnCooldown) {
             float enemyX = random(20, width - 20);
@@ -470,6 +457,7 @@ public class SpaceDefender extends PApplet {
         }
 
 
+        //Replay
         if (gameOver && (key == 'r' || key == 'R')) {
             restartGame();
             return;
@@ -487,7 +475,6 @@ public class SpaceDefender extends PApplet {
 
         // Nach leertaste Kugel erstellen bei playerX starten bei der spitze playerY-25
         // und speichern in bullets
-
         if (key == ' ') {
             shooting = true;
         }
