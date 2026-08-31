@@ -35,11 +35,12 @@ public class SpaceDefender extends PApplet {
     int backgroundY = 0;
 
     //Screens
-    boolean gameOver = false;
+    boolean gameOverScreen = false;
     boolean gameStartScreen = true;
     boolean tutorialScreen = false;
     boolean highscoreScreen = false;
     boolean nameEntryScreen = false;
+    boolean VictoryScreen = false;
 
     boolean shooting = false;
     int lastShotTime = 0;
@@ -53,11 +54,13 @@ public class SpaceDefender extends PApplet {
     //Liste mit allen Kugeln
     ArrayList<Bullet> bullets = new ArrayList<>();
 
-    // Liste mit allen Gegnern
+    // Liste mit allen Asteroids
     ArrayList<Asteroid> asteroids = new ArrayList<>();
 
+    // Liste mit allen Gegnern
     ArrayList<Enemy> enemies = new ArrayList<>();
 
+    // Liste mit allen highscores
     ArrayList<HighscoreEntry> highscoreEntries = new ArrayList<>();
 
 
@@ -111,7 +114,12 @@ public class SpaceDefender extends PApplet {
         if (highscoreScreen) { drawHighscoreScreen(); return; }
 
         // Zeigt den Game-Over-Screen und stoppt den restlichen Spielablauf
-        if (gameOver) { drawGameOverScreen(); return; }
+        if (gameOverScreen) { drawGameOverScreen(); return; }
+
+        if(VictoryScreen) {
+            drawVictoryScreen();
+            return;
+        }
 
         // shooting 200ms abstand. 1000 ms / 200 ms = 5 Schüsse pro Sekunde
         // Solange die Leertaste gedrückt ist, wird nach jedem Cooldown eine neue Kugel erstellt
@@ -154,6 +162,7 @@ public class SpaceDefender extends PApplet {
                                 score = score + 1000;
                                 SoundFile destroySound = getSoundFile(this, "explosionCrunch_001.ogg");
                                 destroySound.play();
+                                VictoryScreen = true;
                             }
                             break;
                         }
@@ -214,7 +223,7 @@ public class SpaceDefender extends PApplet {
                         SoundFile destroySound = getSoundFile(this, "player_explotion.ogg");
                         destroySound.play();
 
-                        gameOver = true;
+                        gameOverScreen = true;
                         startGameOverMusic();
                     }
                     continue;
@@ -274,7 +283,7 @@ public class SpaceDefender extends PApplet {
                     saveHighscores();
                     SoundFile destroySound = getSoundFile(this, "player_explotion.ogg");
                     destroySound.play();
-                    gameOver = true;
+                    gameOverScreen = true;
                     startGameOverMusic();
                 }
                 // continue = Dieser Durchlauf ist fertig. Geh zum nächsten Gegner.
@@ -321,7 +330,7 @@ public class SpaceDefender extends PApplet {
                     saveHighscores();
                     SoundFile destroySound = getSoundFile(this, "player_explotion.ogg");
                     destroySound.play();
-                    gameOver = true;
+                    gameOverScreen = true;
                     startGameOverMusic();
                 }
                 // continue = Dieser Durchlauf ist fertig. Geh zum nächsten Gegner.
@@ -418,7 +427,8 @@ public class SpaceDefender extends PApplet {
         }
 
         // Back Key
-        if ((tutorialScreen || highscoreScreen || gameStartScreen == false) && gameOver == false && (key == 'b' || key == 'B')) {
+        if ((tutorialScreen || highscoreScreen || !gameStartScreen || gameOverScreen || VictoryScreen) &&
+            !gameOverScreen && (key == 'b' || key == 'B')) {
             highscoreScreen = false;
             tutorialScreen = false;
             gameStartScreen = true;
@@ -429,7 +439,7 @@ public class SpaceDefender extends PApplet {
 
 
         //Replay
-        if (gameOver && (key == 'r' || key == 'R')) {
+        if (gameOverScreen || VictoryScreen && (key == 'r' || key == 'R')) {
             restartGame();
             startGameMusic();
             return;
@@ -475,7 +485,11 @@ public class SpaceDefender extends PApplet {
     public void restartGame() {
         score = 0;
         lives = 3;
-        gameOver = false;
+        if(gameOverScreen){
+            gameOverScreen = false;
+        }else {
+            VictoryScreen = false;
+        }
         level = 1;
         bossSpawned = false;
 
@@ -772,7 +786,53 @@ public class SpaceDefender extends PApplet {
         // Replay
         fill(150);
         textSize(11);
-        text("PRESS R TO REPLAY", width / 2, 510);
+        text("PRESS R TO REPLAY OR B TO MENU", width / 2, 510);
+
+    }
+
+    public void drawVictoryScreen() {
+        textAlign(CENTER);
+
+        // Titel
+        fill(0, 255, 0);
+        textSize(55);
+        text("Victroy!", width / 2, 120);
+
+        // Untertitel
+        fill(180);
+        textSize(14);
+        text("YOU SAVED THE GALAXY", width / 2, 165);
+
+        // Panel
+        rectMode(CENTER);
+        fill(0, 160);
+        stroke(0, 255, 0);
+        strokeWeight(2);
+        rect(width / 2, 330, 420, 230);
+
+        // Score von Player
+        fill(180);
+        textSize(13);
+        text("FINAL SCORE", width / 2, 270);
+        fill(255);
+        textSize(32);
+        text(score, width / 2, 315);
+
+        // Highscore
+        fill(180);
+        textSize(13);
+        text("HIGHSCORE", width / 2, 365);
+        fill(255);
+        textSize(20);
+        if (!highscoreEntries.isEmpty()) {
+            text(highscoreEntries.getFirst().getHighscoreOfPlayer(),
+                width / 2, 400);
+        }
+
+        // Replay
+        fill(150);
+        textSize(11);
+        text("PRESS R TO REPLAY OR B TO MENU", width / 2, 510);
 
     }
 
