@@ -14,7 +14,7 @@ public class Enemy extends SpaceObject{
 
 
     public Enemy(PApplet pApplet, float x, float y) {
-        super(pApplet, x, y);
+        super(pApplet, x, y, 68, 54);
         this.startX = x;
         this.image = spriteSheet.get(92, 17, 45, 36);
     }
@@ -24,10 +24,10 @@ public class Enemy extends SpaceObject{
         x = x + (speed * directionX);
 
         // Wenn am Rand
-        if (x >= pApplet.width - 20) {
+        if (x >= pApplet.width - objectWidth / 2) {
             directionX = -1;
         }
-        if (x <= 20) {
+        if (x <= objectWidth / 2) {
             directionX = 1;
         }
 
@@ -38,14 +38,6 @@ public class Enemy extends SpaceObject{
         if (x <= startX - 50) {
             directionX = 1;
         }
-    }
-
-    // Prüft, ob der Gegner das Raumschiff berührt
-    public boolean hitsPlayer(float playerX, float playerY) {
-        float distanceX = x - playerX;
-        float distanceY = y - playerY;
-
-        return Math.abs(distanceX) < 45 && Math.abs(distanceY) < 35;
     }
 
     public boolean canShoot(){

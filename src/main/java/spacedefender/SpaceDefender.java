@@ -283,7 +283,7 @@ public class SpaceDefender extends PApplet {
                 bullets.add(new Bullet(this, enemy.x, enemy.y + 50, 1));
             }
             // Gegner trifft den Spieler
-            if (enemy.hitsPlayer(spaceship.x, spaceship.y)){
+            if (enemy.hitsPlayer(spaceship)){
                 enemies.remove(i);
                 lives = lives - 1;
                 // Wenn keine Leben mehr vorhanden sind, ist das Spiel beendet
@@ -327,7 +327,7 @@ public class SpaceDefender extends PApplet {
             asteroid.move();
             asteroid.display();
             // Asteroid trifft den Spieler
-            if (asteroid.hitsPlayer(spaceship.x, spaceship.y)) {
+            if (asteroid.hitsPlayer(spaceship)) {
                 asteroids.remove(i);
                 lives = lives - 1;
                 // Wenn keine Leben mehr vorhanden sind, ist das Spiel beendet

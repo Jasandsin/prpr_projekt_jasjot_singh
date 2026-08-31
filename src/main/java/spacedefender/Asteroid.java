@@ -8,8 +8,8 @@ public class Asteroid extends SpaceObject {
     float speed = 2;
     PImage spriteSheetAsteroid = pApplet.loadImage("UI-Design/Asteroids-0001.png");
 
-    public Asteroid( PApplet pApplet, float x, float y) {
-        super(pApplet, x, y);
+    public Asteroid(PApplet pApplet, float x, float y) {
+        super(pApplet, x, y, 32, 32);
         this.image = spriteSheetAsteroid.get(96, 16, 16, 16);
     }
 
@@ -23,19 +23,9 @@ public class Asteroid extends SpaceObject {
         return y > pApplet.height;
     }
 
-    // Prüft, ob der Gegner das Raumschiff berührt
-    public boolean hitsPlayer(float playerX, float playerY) {
-        float distanceX = x - playerX;
-        float distanceY = y - playerY;
-
-        return Math.abs(distanceX) < 45 && Math.abs(distanceY) < 35;
-    }
 
     public void setSpeed(float speed) {
         this.speed = speed;
     }
 
-    public float getBulletHitbox() {
-        return 20;
-    }
 }

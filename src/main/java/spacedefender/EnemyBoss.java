@@ -8,15 +8,13 @@ public class EnemyBoss extends Enemy{
     int health = 5;
     PImage spriteSheetBoss = pApplet.loadImage("UI-Design/SpaceShip_Boss-0001.png");
 
-
-
     public EnemyBoss(PApplet pApplet, float x, float y) {
         super(pApplet, x, y);
         this.shootCooldown = 1500;
         image = spriteSheetBoss.get(139, 36, 106, 106);
+        objectWidth = 120;
+        objectHeight = 120;
     }
-
-
 
     public int getHealth() {
         return health;
@@ -35,14 +33,14 @@ public class EnemyBoss extends Enemy{
 
     @Override
     public void move(){
-        y = 50;
+        y = objectHeight / 2 + 20;
         x = x + (speed * directionX);
 
         // Wenn am Rand
-        if (x >= pApplet.width - 20) {
+        if (x >= pApplet.width - objectWidth / 2) {
             directionX = -1;
         }
-        if (x <= 20) {
+        if (x <= objectWidth / 2) {
             directionX = 1;
         }
     }
