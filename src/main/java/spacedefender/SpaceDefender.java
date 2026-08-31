@@ -1,6 +1,7 @@
 package spacedefender;
 
 import processing.core.PApplet;
+import processing.core.PFont;
 import processing.core.PImage;
 import processing.sound.SoundFile;
 
@@ -18,6 +19,14 @@ public class SpaceDefender extends PApplet {
     Spaceship spaceship;
 
     PImage backgroundImage;
+    PImage uiSheet;
+    PImage scorePanel;
+    PImage heartIcon;
+    PFont gameFont;
+
+    SoundFile menuMusic;
+    SoundFile gameMusic;
+    SoundFile gameOverMusic;
 
     int score = 0;
     int lives = 3;
@@ -60,17 +69,30 @@ public class SpaceDefender extends PApplet {
     @Override
     public void setup() {
         level = 3;
+        menuMusic = getSoundFile(this, "Brave Pilots (Menu Screen).ogg");
+        gameMusic = getSoundFile(this, "Battle in the Stars.ogg");
+        gameOverMusic = getSoundFile(this, "Defeated (Game Over Tune).ogg");
+        menuMusic.loop();
+
+        // Font
+        gameFont = createFont("UI-Design/kenvector_future.ttf", 32);
+        textFont(gameFont);
+        //Background
         backgroundImage = loadImage("UI-Design/Background_Full-0001.png");
+        // UI
+        uiSheet = loadImage("UI-Design/UI_sprites-0001.png");
+        scorePanel = uiSheet.get(4, 11, 73, 21);
+        heartIcon = uiSheet.get(3, 82, 13, 11);
         //just to have an example for sound
         loadHighscores();
-        SoundFile sound = getSoundFile(this, "main.ogg");
-        sound.play();
         spaceship = new Spaceship(this, width / 2, height - 70);
         imageMode(CENTER);
     }
 
     @Override
     public void draw() {
+
+        // Erstellt Background und scrollt im Hintergrund
         image(backgroundImage, width / 2, height / 2 + backgroundY, width, height);
         image(backgroundImage, width / 2, backgroundY - height / 2 , width, height);
         backgroundY = backgroundY + 1;
@@ -79,96 +101,24 @@ public class SpaceDefender extends PApplet {
         }
 
         // Zeigt den Start Screen mit Start, Tutorial und Highscore
-        if (gameStartScreen) {
-            fill(255);
-            textAlign(CENTER);
-            textSize(50);
-            text("Welcome to SpaceDefender ", width / 2, 150);
-            textSize(25);
-            text("Start Game Press: S ", width / 2, 310);
-            textSize(25);
-            text("Start Tutorial Press: T ", width / 2, 370);
-            textSize(25);
-            text("See Highscore Press: H ", width / 2, 430);
-
-            return;
-        }
-
-        if (nameEntryScreen) {
-            fill(255);
-            textAlign(CENTER);
-            textSize(50);
-            text("Gib deinen Namen für die Föderation", width / 2, 150);
-            textSize(25);
-            text("name: " + name, width / 2, 310);
-            textSize(25);
-            text("Press Enter to start", width / 2, 370);
-            return;
-        }
+        if (gameStartScreen) { drawStartScreen(); return; }
+        if (nameEntryScreen) { drawNameEntryScreen(); return; }
 
         //Tutorial Screen mit Controller logik und Spiel Anweisungen
-        if (tutorialScreen) {
-            fill(255);
-            textAlign(CENTER);
-            textSize(50);
-            text("Tutorial ", width / 2, 150);
-            textSize(18);
-            text("A = Move Left ", width / 2, 210);
-            textSize(18);
-            text("D = Move Right ", width / 2, 240);
-            textSize(18);
-            text("Space = Shoot ", width / 2, 270);
-            textSize(18);
-            text("You are a Spacedefender.\n " +
-                "Shoot the astroids and enemies.\n  " +
-                "You have 3 lives if you loose them your space ship gets destroyed. ", width / 2, 330);
-            textSize(15);
-            text("Press B to go back to Start Screen ", width / 2, 500);
-            return;
-        }
+        if (tutorialScreen) { drawTutorialScreen(); return; }
 
         //Highscore Screen
-        if (highscoreScreen) {
-            fill(255);
-            textAlign(CENTER);
-            textSize(50);
-            text("HighScore ", width / 2, 150);
-            textSize(18);
-            text("Highest Score", width / 2, 210);
-
-            for(int i = 0; i < highscoreEntries.size() && i < 10; i++){
-                HighscoreEntry highscoreEntry = highscoreEntries.get(i);
-                String highscoreText = (i+1) + " : " + highscoreEntry.getPlayerName() + " - " + highscoreEntry.getHighscoreOfPlayer();
-                textSize(18);
-                text(highscoreText, width / 2, 250 + (i*30));
-            }
-            textSize(15);
-            text("Press B to go back to Start Screen ", width / 2, 550);
-            return;
-        }
+        if (highscoreScreen) { drawHighscoreScreen(); return; }
 
         // Zeigt den Game-Over-Screen und stoppt den restlichen Spielablauf
-        if (gameOver) {
-            fill(255);
-            textAlign(CENTER);
-            textSize(50);
-            text("GAME OVER", width / 2, 250);
-            textSize(25);
-            text("Score: " + score, width / 2, 310);
-            textSize(25);
-            text("highscore: " + highscoreEntries.getFirst().getHighscoreOfPlayer(), width / 2, 350);
-            textSize(20);
-            text("Press R to Replay", width / 2, 400);
-
-            return;
-        }
+        if (gameOver) { drawGameOverScreen(); return; }
 
         // shooting 200ms abstand. 1000 ms / 200 ms = 5 Schüsse pro Sekunde
         // Solange die Leertaste gedrückt ist, wird nach jedem Cooldown eine neue Kugel erstellt
         if (shooting && millis() - lastShotTime >= shootCooldown) {
             bullets.add(new Bullet(this, spaceship.x, spaceship.y - 50, -1));
             lastShotTime = millis();
-            SoundFile shootsound = getSoundFile(this, "enemy_shoot.ogg");
+            SoundFile shootsound = getSoundFile(this, "player_shoot.ogg");
             shootsound.play();
         }
 
@@ -189,16 +139,21 @@ public class SpaceDefender extends PApplet {
             Bullet bullet = bullets.get(i);
             boolean bulletHit = false;
             if(bullet.isPlayerBullet()){
+
                 for (int j = enemies.size() - 1; j >= 0; j--) {
                     Enemy enemy = enemies.get(j);
+
                     if (enemy instanceof EnemyBoss) {
                         if (bullet.hitsEnemy(enemy)) {
                             ((EnemyBoss) enemy).takeDamage();
                             bullets.remove(i);
                             bulletHit = true;
+
                             if (((EnemyBoss) enemy).isDead()) {
                                 enemies.remove(j);
                                 score = score + 1000;
+                                SoundFile destroySound = getSoundFile(this, "explosionCrunch_001.ogg");
+                                destroySound.play();
                             }
                             break;
                         }
@@ -208,6 +163,8 @@ public class SpaceDefender extends PApplet {
                             enemies.remove(j);
                             score = score + 30;
                             bulletHit = true;
+                            SoundFile destroySound = getSoundFile(this, "explosionCrunch_000.ogg");
+                            destroySound.play();
                             break;
                         }
                     }
@@ -225,6 +182,10 @@ public class SpaceDefender extends PApplet {
                             bullets.remove(i);
                             asteroids.remove(j);
                             score = score + 10;
+
+                            SoundFile destroySound = getSoundFile(this, "explosionCrunch_004.ogg");
+                            destroySound.play();
+
                             break;
                         }
                     }
@@ -249,7 +210,12 @@ public class SpaceDefender extends PApplet {
                         }
                         sortHighscores();
                         saveHighscores();
+
+                        SoundFile destroySound = getSoundFile(this, "player_explotion.ogg");
+                        destroySound.play();
+
                         gameOver = true;
+                        startGameOverMusic();
                     }
                     continue;
                 }
@@ -281,6 +247,8 @@ public class SpaceDefender extends PApplet {
             enemy.display();
             if(enemy.canShoot()){
                 bullets.add(new Bullet(this, enemy.x, enemy.y + 50, 1));
+                SoundFile enemyShootSound = getSoundFile(this, "enemy_shoot.ogg");
+                enemyShootSound.play();
             }
             // Gegner trifft den Spieler
             if (enemy.hitsPlayer(spaceship)){
@@ -304,7 +272,10 @@ public class SpaceDefender extends PApplet {
                     }
                     sortHighscores();
                     saveHighscores();
+                    SoundFile destroySound = getSoundFile(this, "player_explotion.ogg");
+                    destroySound.play();
                     gameOver = true;
+                    startGameOverMusic();
                 }
                 // continue = Dieser Durchlauf ist fertig. Geh zum nächsten Gegner.
                 continue;
@@ -348,7 +319,10 @@ public class SpaceDefender extends PApplet {
                     }
                     sortHighscores();
                     saveHighscores();
+                    SoundFile destroySound = getSoundFile(this, "player_explotion.ogg");
+                    destroySound.play();
                     gameOver = true;
+                    startGameOverMusic();
                 }
                 // continue = Dieser Durchlauf ist fertig. Geh zum nächsten Gegner.
                 continue;
@@ -397,19 +371,9 @@ public class SpaceDefender extends PApplet {
         spaceship.move();
         spaceship.display();
 
-        // Zeigt den aktuellen Punktestand oben links an
-        textAlign(LEFT);
-        fill(255);
-        textSize(20);
-        text("Score: " + score, 20, 30);
-        text("Lives: " + lives, 20, 55);
-        text("Level: " + level, 20, 80);
-        for (int j = enemies.size() - 1; j >= 0; j--) {
-            Enemy enemy = enemies.get(j);
-            if (enemy instanceof EnemyBoss) {
-                text("Boss HP: " + ((EnemyBoss) enemy).getHealth(), 20, 105);
-            }
-        }
+        //HUD links oben
+        drawHUD();
+
     }
 
     @Override
@@ -426,6 +390,7 @@ public class SpaceDefender extends PApplet {
            if(key == ENTER){
                if(!name.isEmpty()){
                    nameEntryScreen = false;
+                   startGameMusic();
                }
            } else if(key == BACKSPACE) {
                if(!name.isEmpty()){
@@ -458,6 +423,7 @@ public class SpaceDefender extends PApplet {
             tutorialScreen = false;
             gameStartScreen = true;
             restartGame();
+            startMenuMusic();
             return;
         }
 
@@ -465,6 +431,7 @@ public class SpaceDefender extends PApplet {
         //Replay
         if (gameOver && (key == 'r' || key == 'R')) {
             restartGame();
+            startGameMusic();
             return;
         }
 
@@ -553,6 +520,284 @@ public class SpaceDefender extends PApplet {
             highscoreEntries.add(highscoreEntry);
         }
         sortHighscores();
+    }
+
+
+    // UI & Screens Design
+
+    public void drawHUD() {
+
+        // Score Panel
+        image(scorePanel, 90, 30, 146, 42);
+        fill(255);
+        textAlign(LEFT);
+        textSize(14);
+        text(score, 70, 30);
+
+        // Level
+        textSize(16);
+        text("LEVEL " + level, 20, 75);
+
+        // Leben als Herzen
+        for (int i = 0; i < lives; i++) {
+            image(heartIcon, 30 + (i * 30), 105, 26, 22);
+        }
+
+        // Boss HP
+        for (int i = 0; i < enemies.size(); i++) {
+            Enemy enemy = enemies.get(i);
+            if (enemy instanceof EnemyBoss) {
+                EnemyBoss boss = (EnemyBoss) enemy;
+
+                textAlign(CENTER);
+                fill(255);
+                textSize(14);
+                text("GARKOS DESTROYER", width / 2, 25);
+
+                // Hintergrund der HP-Leiste
+                fill(50);
+                rectMode(CENTER);
+                rect(width / 2, 42, 200, 12);
+
+                // Aktuelle HP
+                float healthWidth = boss.getHealth() * 40;
+                fill(255, 0, 0);
+                rectMode(CORNER);
+                rect(width / 2 - 100, 36, healthWidth, 12);
+                break;
+            }
+        }
+    }
+
+    public void drawStartScreen() {
+        textAlign(CENTER);
+
+        // Titel
+        fill(255);
+        textSize(48);
+        text("SPACE", width / 2, 120);
+        fill(0, 180, 255);
+        textSize(55);
+        text("DEFENDER", width / 2, 175);
+
+        // Untertitel
+        fill(180);
+        textSize(14);
+        text("DEFEND THE GALAXY", width / 2, 210);
+
+        // Menü Panel
+        rectMode(CENTER);
+        fill(0, 160);
+        stroke(0, 180, 255);
+        strokeWeight(2);
+        rect(width / 2, 365, 380, 220);
+
+        // Menü
+        fill(255);
+        textSize(20);
+        text("[ S ]  START GAME", width / 2, 315);
+        text("[ T ]  TUTORIAL", width / 2, 365);
+        text("[ H ]  HIGHSCORES", width / 2, 415);
+
+        // Hinweis
+        fill(150);
+        textSize(11);
+        text("PRESS A KEY TO SELECT", width / 2, 500);
+
+    }
+
+    public void drawTutorialScreen(){
+        textAlign(CENTER);
+
+        // Titel
+        fill(255);
+        textSize(48);
+        text("TUTORIAL", width / 2, 100);
+
+        // Untertitel
+        fill(180);
+        textSize(14);
+        text("PREPARE FOR THE WAR", width / 2, 145);
+
+        // Tutorial Panel
+        rectMode(CENTER);
+        fill(0, 160);
+        stroke(0, 180, 255);
+        strokeWeight(2);
+        rect(width / 2, 330, 420, 290);
+
+        // Steuerung
+        fill(255);
+        textSize(20);
+        text("[ A ]  MOVE LEFT", width / 2, 240);
+        text("[ D ]  MOVE RIGHT", width / 2, 285);
+        text("[ SPACE ]  SHOOT", width / 2, 330);
+
+        // Spielregeln
+        fill(180);
+        textSize(12);
+        text("DESTROY ASTEROIDS AND ENEMIES", width / 2, 390);
+        text("YOU HAVE 3 LIVES", width / 2, 420);
+
+        // Zurück
+        fill(150);
+        textSize(11);
+        text("PRESS B TO GO BACK", width / 2, 500);
+    }
+
+    public void drawNameEntryScreen() {
+        textAlign(CENTER);
+
+        // Titel
+        fill(255);
+        textSize(42);
+        text("IDENTIFICATION", width / 2, 100);
+
+        // Untertitel
+        fill(180);
+        textSize(14);
+        text("JOIN THE FEDERATION", width / 2, 145);
+
+        // Panel
+        rectMode(CENTER);
+        fill(0, 160);
+        stroke(0, 180, 255);
+        strokeWeight(2);
+        rect(width / 2, 330, 420, 220);
+
+        // Name
+        fill(180);
+        textSize(12);
+        text("ENTER PILOT NAME", width / 2, 270);
+
+        fill(255);
+        textSize(25);
+        text(name + "_", width / 2, 330);
+
+        // Hinweis
+        fill(180);
+        textSize(12);
+        text("YOUR SCORE WILL BE SAVED", width / 2, 390);
+
+        fill(150);
+        textSize(11);
+        text("PRESS ENTER TO START", width / 2, 500);
+    }
+
+    public void drawHighscoreScreen() {
+        textAlign(CENTER);
+
+        // Titel
+        fill(255);
+        textSize(48);
+        text("HIGHSCORES", width / 2, 80);
+
+        // Untertitel
+        fill(180);
+        textSize(14);
+        text("TOP SPACE DEFENDERS", width / 2, 120);
+
+        // Panel
+        rectMode(CENTER);
+        fill(0, 160);
+        stroke(0, 180, 255);
+        strokeWeight(2);
+        rect(width / 2, 325, 460, 350);
+
+        // Highscores
+        fill(255);
+        textSize(15);
+
+        if (highscoreEntries.isEmpty()) {
+            text("NO HIGHSCORES YET", width / 2, 300);
+        } else {
+            for (int i = 0; i < highscoreEntries.size() && i < 10; i++) {
+                HighscoreEntry highscoreEntry = highscoreEntries.get(i);
+
+                String highscoreText =
+                    (i + 1) + ".  "
+                        + highscoreEntry.getPlayerName()
+                        + "   "
+                        + highscoreEntry.getHighscoreOfPlayer();
+
+                text(highscoreText, width / 2, 180 + (i * 28));
+            }
+        }
+
+        // Zurück
+        fill(150);
+        textSize(11);
+        text("PRESS B TO GO BACK", width / 2, 540);
+    }
+
+    public void drawGameOverScreen() {
+        textAlign(CENTER);
+
+        // Titel
+        fill(255, 60, 60);
+        textSize(55);
+        text("GAME OVER", width / 2, 120);
+
+        // Untertitel
+        fill(180);
+        textSize(14);
+        text("YOUR SHIP WAS DESTROYED", width / 2, 165);
+
+        // Panel
+        rectMode(CENTER);
+        fill(0, 160);
+        stroke(255, 60, 60);
+        strokeWeight(2);
+        rect(width / 2, 330, 420, 230);
+
+        // Score von Player
+        fill(180);
+        textSize(13);
+        text("FINAL SCORE", width / 2, 270);
+        fill(255);
+        textSize(32);
+        text(score, width / 2, 315);
+
+        // Highscore
+        fill(180);
+        textSize(13);
+        text("HIGHSCORE", width / 2, 365);
+        fill(255);
+        textSize(20);
+        if (!highscoreEntries.isEmpty()) {
+            text(highscoreEntries.getFirst().getHighscoreOfPlayer(),
+                width / 2, 400);
+        }
+
+        // Replay
+        fill(150);
+        textSize(11);
+        text("PRESS R TO REPLAY", width / 2, 510);
+
+    }
+
+    public void startGameMusic() {
+        menuMusic.stop();
+        gameOverMusic.stop();
+        if (!gameMusic.isPlaying()) {
+            gameMusic.loop();
+        }
+    }
+
+    public void startGameOverMusic(){
+        menuMusic.stop();
+        gameMusic.stop();
+        if (!gameOverMusic.isPlaying()) {
+            gameOverMusic.loop();
+        }
+    }
+
+    public void startMenuMusic(){
+        gameOverMusic.stop();
+        gameMusic.stop();
+        if (!menuMusic.isPlaying()) {
+            menuMusic.loop();
+        }
     }
 
 }
