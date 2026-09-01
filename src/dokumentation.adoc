@@ -16,7 +16,7 @@ Anschliessend habe ich die verschiedenen Screens wie Startscreen, Tutorial, Game
 
 Danach habe ich auch die HighscoreEntry Klasse erstellt, in der der Spieler und die Anzahl der erreichten Punkte gespeichert werden. Damit kann ich im HighscoreScreen die Rangliste anzeigen.
 
-Zum Schluss habe ich das Gameplay verbessert und Soundeffekte, Hintergrundmusik, Explosionen, einen VictoryScreen und das UI hinzugefügt. Um Soundeffekte oder Bilder zu laden, habe ich die FileLoader Klasse aus der SuperMario Demo verwendet. Zusätzlich habe ich noch Refactoring durchgeführt, um den Code sauberer und übersichtlicher zu machen.
+Zum Schluss habe ich das Gameplay verbessert und Soundeffekte, Hintergrundmusik, Explosionen, einen VictoryScreen und das UI hinzugefügt. Um Soundeffekte oder Bilder zu laden, habe ich die FileLoader Klasse aus der SuperMario Demo verwendet. Zusätzlich habe ich während dem Programmiern noch Refactoring durchgeführt, um den Code sauberer und übersichtlicher zu machen.
 
 == Schwierigkeiten
 
