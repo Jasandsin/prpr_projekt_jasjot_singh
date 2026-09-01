@@ -1,10 +1,55 @@
-=== Dokumentation
+= Dokumentation – Space Defender
 
-Ich habe mich entschieden ein Spacedefender game zu erstellen. Also wo ein Raumschiff fliegt und entegenkommende Schiffe beschiesst.
+== Ziel
 
-Die idee ist das in level 1 die astroide langsam ankommen. Danach in level 2 sie schneller werden mit gegner (Aliens) und im level 3 mit einem grossen gegner am ende
+Mein Ziel war es, ein Space-Defender-Game mit Processing zu entwickeln. Der Spieler steuert ein Spaceship, weicht Asteroiden und Gegnern aus und kann diese abschiessen. Dadurch kann er Punkte sammeln und mit diesen Punkten in die nächsten Levels kommen.
 
-Man hat 3 leben
+Das Spiel besteht aus drei Levels. In Level 1 erscheinen hauptsächlich Asteroiden (Small und Medium). In Level 2 werden diese schneller, zusätzlich kommen die Big Asteroiden dazu und es erscheinen gegnerische Raumschiffe, die schiessen können. In Level 3 wartet ein Endboss auf den Spieler zusammen mit allen Asteroiden und Gegnern.
 
+Der Spieler kann seinen Namen eingeben und startet mit drei Leben.
 
-Ich werde zuerst den setup von DemoApp kopieren und mit dem Anfangen.
+== Vorgehen
+
+Als Grundlage habe ich zuerst das Setup der DemoApp verwendet. Danach habe ich die wichtigsten Klassen wie SpaceDefender, Spaceship, Bullet, Asteroid und Enemy erstellt. Dabei habe ich mich auch am SuperMario Beispiel orientiert, um den Aufbau eines Processing Projekts besser zu verstehen.
+
+Anschliessend habe ich die verschiedenen Screens wie Startscreen, Tutorial, Game Over und Highscore erstellt. Danach kamen weitere Gegnertypen und der Endboss hinzu. Dabei habe ich Vererbung verwendet, beispielsweise für die verschiedenen Asteroiden Small, Medium und Big sowie für Enemy und EnemyBoss. Auch die verschiedenen Spielobjekte wie Enemy, Asteroid, Spaceship und Bullet erben von der gemeinsamen SpaceObject-Klasse.
+
+Danach habe ich auch die HighscoreEntry Klasse erstellt, in der der Spieler und die Anzahl der erreichten Punkte gespeichert werden. Damit kann ich im HighscoreScreen die Rangliste anzeigen.
+
+Zum Schluss habe ich das Gameplay verbessert und Soundeffekte, Hintergrundmusik, Explosionen, einen VictoryScreen und das UI hinzugefügt. Um Soundeffekte oder Bilder zu laden, habe ich die FileLoader Klasse aus der SuperMario Demo verwendet. Zusätzlich habe ich noch Refactoring durchgeführt, um den Code sauberer und übersichtlicher zu machen.
+
+== Schwierigkeiten
+
+Die grösste Schwierigkeit war am Anfang, Processing und insbesondere den Ablauf der draw()-Methode zu verstehen. Auch die Logik für Bullets, Gegner, Asteroiden und Kollisionen war anfangs schwierig.
+
+Während der Entwicklung hatte ich ausserdem mehrere Logikfehler, beispielsweise beim Entfernen von Objekten aus Listen oder bei Kollisionen. Auch bei der Boolean-Logik der Screens, wann welcher Screen false oder true sein muss, gab es Schwierigkeiten.
+
+Auch das Laden von Bildern war schwierig, insbesondere bei den Explosionen, bei denen mehrere aufeinanderfolgende Bilder wiedergegeben werden müssen. Auch die Skalierung war eine Herausforderung, da die Explosion bei kleineren Objekten kleiner sein sollte als bei grossen Objekten wie dem Boss.
+
+== Lösungsweg
+
+Für Bullets, Asteroiden und Gegner habe ich Listen verwendet, da während des Spiels unterschiedlich viele dieser Objekte existieren können.
+
+Viele gemeinsame Eigenschaften und Funktionen konnte ich durch Vererbung wiederverwenden. Durch schrittweises Testen konnte ich die auftretenden Fehler lösen.
+
+Ich habe während des Projekts auch ein AI-Tool als Mentor verwendet. Dabei habe ich mir Konzepte erklären lassen und Fragen zu Problemen gestellt. Mit der Zeit konnte ich immer mehr Funktionen und Änderungen selbstständig umsetzen.
+
+Für die verschiedenen Screens habe ich Boolean-Variablen verwendet. In keyPressed() habe ich die Logik eingebaut, damit durch das Drücken von Tasten die Screens ein- oder ausgeschaltet werden.
+
+Für die Explosionen habe ich mehrere einzelne Bilder aus einem Sprite-Sheet geladen und diese nacheinander abgespielt. Zusätzlich habe ich eine Skalierung eingebaut. Dadurch kann zum Beispiel die Explosion des Endbosses grösser dargestellt werden als die Explosion eines kleinen Asteroiden.
+
+== Endresultat
+
+Am Ende ist ein vollständiges Space-Defender-Spiel entstanden. Es besitzt drei Levels, verschiedene Asteroiden und Gegner, einen Endboss, drei Leben, ein Punktesystem und Highscores pro Spieler, die lokal abgespeichert werden.
+
+Zusätzlich gibt es einen Startscreen, ein Tutorial, einen Game-Over-Screen und einen Victory-Screen sowie Soundeffekte, unterschiedliche Hintergrundmusik, Explosionen und ein eigenes UI, das meiner Meinung nach sehr gut zum Spiel passt.
+
+Das Spiel könnte in Zukunft noch durch weitere Levels oder Power-ups wie zusätzliche Leben oder einen Dreifachschuss erweitert werden. Leider hatte ich nicht mehr die Zeit dafür.
+
+== Lernerfolge / Reflexion
+
+Mir hat besonders gefallen, dass ich viele Inhalte aus dem Java Basics - 7h Tutorial direkt in einem eigenen Projekt anwenden konnte. Dazu gehören Klassen und Objekte, Vererbung, Listen und Schleifen.
+
+Am Anfang war Processing für mich noch neu und ich brauchte mehr Unterstützung. Während des Projekts habe ich jedoch immer besser verstanden, wie Processing funktioniert und wie die einzelnen Teile meines Spiels zusammenspielen. Gegen Ende konnte ich viele Funktionen selbstständig erstellen und bestehenden Code selbst verändern.
+
+Insgesamt konnte ich dadurch meine Java-Kenntnisse praktisch anwenden und gleichzeitig lernen, wie ein vollständiges Spiel mit Processing aufgebaut werden kann.

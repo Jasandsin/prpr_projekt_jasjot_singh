@@ -56,11 +56,4 @@ public class Enemy extends SpaceObject{
         this.speed = speed;
     }
 
-    public void setDirectionX(int directionX) {
-        this.directionX = directionX;
-    }
-
-    public void setStartX(float startX) {
-        this.startX = startX;
-    }
 }
