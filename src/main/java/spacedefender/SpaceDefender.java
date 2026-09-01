@@ -22,6 +22,10 @@ public class SpaceDefender extends PApplet {
     PImage uiSheet;
     PImage scorePanel;
     PImage heartIcon;
+
+    PImage explosionSheet;
+    PImage[] explosionFrames = new PImage[7];
+
     PFont gameFont;
 
     SoundFile menuMusic;
@@ -53,6 +57,10 @@ public class SpaceDefender extends PApplet {
     int lastEnemySpawn = 0;
     int enemySpawnCooldown = 1000;
 
+    boolean playerDestroyed = false;
+    boolean bossDestroyed = false;
+    int destroyedTime = 0;
+
     //Liste mit allen Kugeln
     ArrayList<Bullet> bullets = new ArrayList<>();
 
@@ -64,6 +72,9 @@ public class SpaceDefender extends PApplet {
 
     // Liste mit allen highscores
     ArrayList<HighscoreEntry> highscoreEntries = new ArrayList<>();
+
+    //Liste mit allen explosions
+    ArrayList<Explosion> explosions = new ArrayList<>();
 
 
     @Override
@@ -90,6 +101,16 @@ public class SpaceDefender extends PApplet {
         uiSheet = loadImage("UI-Design/UI_sprites-0001.png");
         scorePanel = uiSheet.get(4, 11, 73, 21);
         heartIcon = uiSheet.get(3, 82, 13, 11);
+
+        explosionSheet = loadImage("UI-Design/Explosion-0001.png");
+        explosionFrames[0] = explosionSheet.get(19, 51, 10, 10);
+        explosionFrames[1] = explosionSheet.get(48, 48, 17, 16);
+        explosionFrames[2] = explosionSheet.get(77, 29, 50, 47);
+        explosionFrames[3] = explosionSheet.get(146, 27, 48, 51);
+        explosionFrames[4] = explosionSheet.get(213, 25, 52, 57);
+        explosionFrames[5] = explosionSheet.get(286, 42, 32, 29);
+        explosionFrames[6] = explosionSheet.get(337, 41, 31, 30);
+
         //just to have an example for sound
         loadHighscores();
         spaceship = new Spaceship(this, width / 2, height - 70);
@@ -159,18 +180,21 @@ public class SpaceDefender extends PApplet {
                             bulletHit = true;
 
                             if (((EnemyBoss) enemy).isDead()) {
+                                explosions.add(new Explosion(this, enemy.x, enemy.y, explosionFrames, 3.5f));
                                 enemies.remove(j);
                                 score = score + 1000;
+                                updateHighscore();
                                 SoundFile destroySound = getSoundFile(this, "explosion-large_3.wav");
                                 destroySound.play();
-                                VictoryScreen = true;
-                                startVictoryMusic();
+                                bossDestroyed = true;
+                                destroyedTime = millis();
                             }
                             break;
                         }
                     } else {
                         if (bullet.hitsEnemy(enemy)) {
                             bullets.remove(i);
+                            explosions.add(new Explosion(this, enemy.x, enemy.y, explosionFrames, 1.5f));
                             enemies.remove(j);
                             score = score + 30;
                             bulletHit = true;
@@ -191,6 +215,7 @@ public class SpaceDefender extends PApplet {
 
                         if (bullet.hitsAsteroid(asteroid)) {
                             bullets.remove(i);
+                            explosions.add(new Explosion(this, asteroid.x, asteroid.y, explosionFrames, 1.5f));
                             asteroids.remove(j);
                             score = score + 10;
 
@@ -205,33 +230,50 @@ public class SpaceDefender extends PApplet {
                     bullets.remove(i);
                     lives = lives -1;
                     if (lives <= 0) {
-                        boolean playerExist = false;
-                        HighscoreEntry highscore = new HighscoreEntry(name, score);
-                        for (int h = 0; h < highscoreEntries.size(); h++) {
-                            HighscoreEntry highscoreEntry = highscoreEntries.get(h);
-                            if (highscoreEntry.getPlayerName().equals(name)){
-                                playerExist = true;
-                                if(highscoreEntry.getHighscoreOfPlayer() < score){
-                                    highscoreEntry.setHighscoreOfPlayer(score);
-                                }
-                            }
-                        }
-                        if(!playerExist){
-                            highscoreEntries.add(highscore);
-                        }
-                        sortHighscores();
-                        saveHighscores();
-
+                        explosions.add(new Explosion(this, spaceship.x, spaceship.y, explosionFrames, 2f));
+                        updateHighscore();
                         SoundFile destroySound = getSoundFile(this, "player_explotion.ogg");
                         destroySound.play();
-
-                        gameOverScreen = true;
-                        startGameOverMusic();
-                        return;
+                        playerDestroyed = true;
+                        destroyedTime = millis();
                     }
                 }
+
         }
 
+        if (bossDestroyed || playerDestroyed) {
+            bullets.clear();
+        }
+
+        // Zeigt alle Explosionen an und entfernt sie nach dem letzten Frame
+        for (int i = explosions.size() - 1; i >= 0; i--) {
+            Explosion explosion = explosions.get(i);
+
+            explosion.display();
+            explosion.update();
+
+            if (explosion.isFinished()) {
+                explosions.remove(i);
+            }
+        }
+
+        // Nach Player-Explosion Game Over anzeigen
+        if (playerDestroyed && millis() - destroyedTime >= 900) {
+            gameOverScreen = true;
+            startGameOverMusic();
+            return;
+        }
+
+        // Nach Boss-Explosion Victory anzeigen
+        if (bossDestroyed && millis() - destroyedTime >= 900) {
+            VictoryScreen = true;
+            startVictoryMusic();
+            return;
+        }
+
+        if (playerDestroyed || bossDestroyed) {
+            return;
+        }
 
         // Level 3 EndBoss Spawn
         if (level == 3 && !bossSpawned) {
@@ -273,27 +315,13 @@ public class SpaceDefender extends PApplet {
                 lives = lives - 1;
                 // Wenn keine Leben mehr vorhanden sind, ist das Spiel beendet
                 if (lives <= 0) {
-                    boolean playerExist = false;
-                    HighscoreEntry highscore = new HighscoreEntry(name, score);
-                    for (int h = 0; h < highscoreEntries.size(); h++) {
-                        HighscoreEntry highscoreEntry = highscoreEntries.get(h);
-                        if (highscoreEntry.getPlayerName().equals(name)){
-                            playerExist = true;
-                            if(highscoreEntry.getHighscoreOfPlayer() < score){
-                                highscoreEntry.setHighscoreOfPlayer(score);
-                            }
-                        }
-                    }
-                    if(!playerExist){
-                        highscoreEntries.add(highscore);
-                    }
-                    sortHighscores();
-                    saveHighscores();
+                    explosions.add(new Explosion(this, spaceship.x, spaceship.y, explosionFrames, 2f));
+                    updateHighscore();
                     SoundFile destroySound = getSoundFile(this, "player_explotion.ogg");
                     destroySound.play();
-                    gameOverScreen = true;
-                    startGameOverMusic();
-                    return;
+
+                    playerDestroyed = true;
+                    destroyedTime = millis();
                 }
             }
             // Enemy hat den Bildschirm verlassen
@@ -319,27 +347,13 @@ public class SpaceDefender extends PApplet {
                 lives = lives - 1;
                 // Wenn keine Leben mehr vorhanden sind, ist das Spiel beendet
                 if (lives <= 0) {
-                    boolean playerExist = false;
-                    HighscoreEntry highscore = new HighscoreEntry(name, score);
-                    for (int h = 0; h < highscoreEntries.size(); h++) {
-                        HighscoreEntry highscoreEntry = highscoreEntries.get(h);
-                        if (highscoreEntry.getPlayerName().equals(name)){
-                            playerExist = true;
-                            if(highscoreEntry.getHighscoreOfPlayer() < score){
-                                highscoreEntry.setHighscoreOfPlayer(score);
-                            }
-                        }
-                    }
-                    if(!playerExist){
-                        highscoreEntries.add(highscore);
-                    }
-                    sortHighscores();
-                    saveHighscores();
+                    explosions.add(new Explosion(this, spaceship.x, spaceship.y, explosionFrames, 2f));
+                    updateHighscore();
                     SoundFile destroySound = getSoundFile(this, "player_explotion.ogg");
                     destroySound.play();
-                    gameOverScreen = true;
-                    startGameOverMusic();
-                    return;
+
+                    playerDestroyed = true;
+                    destroyedTime = millis();
                 }
             }
             // Asteriod hat den Bildschirm verlassen
@@ -382,9 +396,11 @@ public class SpaceDefender extends PApplet {
             lastEnemySpawn = millis();
         }
 
-        //Raumschiff
-        spaceship.move();
-        spaceship.display();
+        //Raumschiffiff
+        if (!playerDestroyed) {
+            spaceship.move();
+            spaceship.display();
+        }
 
         //HUD links oben
         drawHUD();
@@ -433,8 +449,7 @@ public class SpaceDefender extends PApplet {
         }
 
         // Back Key
-        if ((tutorialScreen || highscoreScreen || !gameStartScreen || gameOverScreen || VictoryScreen) &&
-            !gameOverScreen && (key == 'b' || key == 'B')) {
+        if ((tutorialScreen || highscoreScreen || !gameStartScreen || gameOverScreen || VictoryScreen) && (key == 'b' || key == 'B')) {
             highscoreScreen = false;
             tutorialScreen = false;
             gameStartScreen = true;
@@ -493,6 +508,9 @@ public class SpaceDefender extends PApplet {
         lives = 3;
         gameOverScreen = false;
         VictoryScreen = false;
+        playerDestroyed = false;
+        bossDestroyed = false;
+        destroyedTime = 0;
         level = 1;
         bossSpawned = false;
 
@@ -501,6 +519,7 @@ public class SpaceDefender extends PApplet {
         bullets.clear();
         asteroids.clear();
         enemies.clear();
+        explosions.clear();
 
         shooting = false;
         spaceship.moveLeft = false;
@@ -539,6 +558,29 @@ public class SpaceDefender extends PApplet {
         sortHighscores();
     }
 
+    public void updateHighscore() {
+        boolean playerExist = false;
+        HighscoreEntry highscore = new HighscoreEntry(name, score);
+
+        for (int i = 0; i < highscoreEntries.size(); i++) {
+            HighscoreEntry highscoreEntry = highscoreEntries.get(i);
+
+            if (highscoreEntry.getPlayerName().equals(name)) {
+                playerExist = true;
+
+                if (highscoreEntry.getHighscoreOfPlayer() < score) {
+                    highscoreEntry.setHighscoreOfPlayer(score);
+                }
+            }
+        }
+
+        if (!playerExist) {
+            highscoreEntries.add(highscore);
+        }
+
+        sortHighscores();
+        saveHighscores();
+    }
 
     // UI & Screens Design
 
@@ -799,7 +841,7 @@ public class SpaceDefender extends PApplet {
         // Titel
         fill(0, 255, 0);
         textSize(55);
-        text("Victroy!", width / 2, 120);
+        text("Victory!", width / 2, 120);
 
         // Untertitel
         fill(180);
